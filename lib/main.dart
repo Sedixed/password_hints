@@ -1,17 +1,21 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'constants.dart';
 
-import 'widgets/horizontal_labeled_separator.dart';
-import 'widgets/empty_list_card.dart';
 import 'widgets/scrollable_list.dart';
 
 Faker faker = Faker();
 List<String> names = List<String>.generate(
     20, (index) => faker.person.firstName(),
     growable: true);
+
+List<HintEntry> entries = [];
 
 /// Main function of the app.
 void main() {
@@ -28,7 +32,9 @@ class App extends StatelessWidget {
       theme: ThemeData.dark(
         useMaterial3: true,
       ),
-      home: SafeArea(child: Home()),
+      home: SafeArea(
+        child: Home(),
+      ),
       title: 'Passwd Hints',
     );
   }
@@ -44,6 +50,7 @@ class Home extends StatefulWidget {
 
 /// _HomeState widget : defines the state of the app.
 class _HomeState extends State<Home> {
+  final FileController controller = FileController();
   final alphabets = List.generate(
       26, (index) => String.fromCharCode(index + firstLetterIndex));
   int _searchIndex = 0;
@@ -180,6 +187,9 @@ class _HomeState extends State<Home> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          TextEditingController nameController = TextEditingController();
+          TextEditingController hintController = TextEditingController();
+          TextEditingController identifierController = TextEditingController();
           showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -192,6 +202,7 @@ class _HomeState extends State<Home> {
                       child: Column(
                         children: <Widget>[
                           TextFormField(
+                            controller: nameController,
                             decoration: InputDecoration(
                               labelText: 'Name',
                               suffixText: '*',
@@ -202,6 +213,7 @@ class _HomeState extends State<Home> {
                             ),
                           ),
                           TextFormField(
+                            controller: hintController,
                             autocorrect: false,
                             enableSuggestions: false,
                             decoration: InputDecoration(
@@ -214,6 +226,7 @@ class _HomeState extends State<Home> {
                             ),
                           ),
                           TextFormField(
+                            controller: identifierController,
                             decoration: InputDecoration(
                               labelText: 'Email/Username',
                               icon: Icon(Icons.alternate_email),
@@ -228,6 +241,9 @@ class _HomeState extends State<Home> {
                       child: Text('Add'),
                       onPressed: () {
                         // handle
+                        controller.addEntry(nameController.text,
+                            hintController.text, identifierController.text);
+                        controller.readEntries();
                         Navigator.pop(context);
                       },
                     ),
@@ -295,5 +311,79 @@ class AppSearchDelegate extends SearchDelegate {
         );
       },
     );
+  }
+}
+
+class FileController {
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    return directory.path;
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('$path/$fileName');
+  }
+
+  Future<int> addEntry(String name, String hint, String identifier) async {
+    final file = await _localFile;
+
+    HintEntry entry = HintEntry(name, hint, identifier);
+    entries.add(entry);
+    entries
+        .map(
+          (player) => entry.toJson(),
+        )
+        .toList();
+
+    file.writeAsStringSync(json.encode(entries));
+    // Write the file
+    return 0;
+  }
+
+  Future<int> readEntries() async {
+    try {
+      final file = await _localFile;
+
+      // Read the file
+      final contents = await file.readAsString();
+      var jsonResponse = jsonDecode(contents);
+
+      for (var e in jsonResponse) {
+        HintEntry entry = HintEntry(e['name'], e['hint'], e['identifier']);
+        print(entry.name);
+        print(entry.hint);
+        print(entry.identifier);
+      }
+
+      return int.parse(contents);
+    } catch (e) {
+      // If encountering an error, return 0
+      return 0;
+    }
+  }
+}
+
+class HintEntry {
+  late String name;
+  late String hint;
+  late String identifier;
+
+  HintEntry(this.name, this.hint, this.identifier);
+
+  HintEntry.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    hint = json['hint'];
+    identifier = json['identifier'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['name'] = name;
+    data['hint'] = hint;
+    data['identifier'] = identifier;
+
+    return data;
   }
 }

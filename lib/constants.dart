@@ -7,3 +7,6 @@ const sepColor = Color.fromARGB(255, 122, 118, 118);
 // Characters
 const zIndex = 24;
 const firstLetterIndex = 65;
+
+// JSON
+const fileName = "passwd_hints_data.json";
