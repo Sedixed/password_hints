@@ -7,15 +7,21 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'constants.dart';
+import 'hint_entry.dart';
 
 import 'widgets/scrollable_list.dart';
 
+const nb = 20;
+
 Faker faker = Faker();
 List<String> names = List<String>.generate(
-    20, (index) => faker.person.firstName(),
+    nb, (index) => faker.person.firstName(),
     growable: true);
-
-List<HintEntry> entries = [];
+List<String> hints = List<String>.generate(
+    nb, (index) => faker.lorem.sentence(),
+    growable: true);
+List<String> ids =
+    List<String>.generate(nb, (index) => faker.guid.guid(), growable: true);
 
 /// Main function of the app.
 void main() {
@@ -50,13 +56,26 @@ class Home extends StatefulWidget {
 
 /// _HomeState widget : defines the state of the app.
 class _HomeState extends State<Home> {
-  final FileController controller = FileController();
+  // Alphabet
   final alphabets = List.generate(
       26, (index) => String.fromCharCode(index + firstLetterIndex));
+
+  // Search index (right panel)
   int _searchIndex = 0;
+
+  // Hint entries
+  List<HintEntry> entries = [];
+
+  // Scroll controllers / jumpers
   final ItemScrollController _itemScrollController = ItemScrollController();
   final ItemPositionsListener _itemPositionsListener =
       ItemPositionsListener.create();
+
+  // File controller
+  final FileController controller = FileController();
+
+  // Loading toggle
+  bool isLoading = false;
 
   /// Sets the search index after a tap on searchLetter on the screen.
   /// If a matching entry is directly found, jumps to it. Otherwise, it
@@ -64,7 +83,8 @@ class _HomeState extends State<Home> {
   /// after the searched one, no jump is performed.
   void setSearchIndex(String searchLetter) {
     setState(() {
-      _searchIndex = names.indexWhere((element) => element[0] == searchLetter);
+      _searchIndex = entries.indexWhere((element) =>
+          element.name.isNotEmpty && element.name[0] == searchLetter);
       // Entry directly found
       if (_searchIndex >= 0) {
         _itemScrollController.jumpTo(index: _searchIndex);
@@ -77,15 +97,16 @@ class _HomeState extends State<Home> {
             break;
           }
           ++i;
-          _searchIndex = names.indexWhere(
-              (element) => element[0] == String.fromCharCode(asciiLetter + i));
+          _searchIndex = entries.indexWhere((element) =>
+              element.name.isNotEmpty &&
+              element.name[0] == String.fromCharCode(asciiLetter + i));
         }
 
         if (_searchIndex >= 0) {
           _itemScrollController.jumpTo(index: _searchIndex);
         } else {
-          if (names.isNotEmpty) {
-            _searchIndex = names.length - 1;
+          if (entries.isNotEmpty) {
+            _searchIndex = entries.length - 1;
             _itemScrollController.jumpTo(index: _searchIndex);
           }
         }
@@ -93,176 +114,148 @@ class _HomeState extends State<Home> {
     });
   }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    names.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+  void addEntry(String name, String hint, String identifier) {
+    setState(() {
+      controller.addEntry(entries, name, hint, identifier);
+    });
   }
 
-  /*
-  Widget getMainContentWidget(List names) {
-    if (names.isEmpty) {
-      return EmptyListCard();
-    }
+  @override
+  void initState() {
+    print('init');
+    isLoading = true;
+    super.initState();
 
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 20, 40, 20),
-      child: ScrollablePositionedList.separated(
-        separatorBuilder: (context, index) =>
-            HorizontalLabeledSeparator(names, index),
-        itemScrollController: _itemScrollController,
-        itemPositionsListener: _itemPositionsListener,
-        itemCount: names.length + 1,
-        itemBuilder: (context, index) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            index == 0
-                ? SizedBox()
-                : Container(
-                    width: double.infinity,
-                    height: 50,
-                    child: Card(
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Text(
-                            names[index - 1],
-                            style: const TextStyle(fontSize: 20),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-            const SizedBox(
-              height: 30,
-            ),
-          ],
-        ),
-      ),
+    controller.readEntries(entries).then(
+      (value) {
+        setState(() {
+          isLoading = false;
+          print(entries.length);
+        });
+      },
     );
-    
-  }*/
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: appbarColor,
-        title: const Text('Passwd Hints'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              showSearch(context: context, delegate: AppSearchDelegate(names));
-            },
-            icon: const Icon(Icons.search),
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          //getMainContentWidget(names),
-          ScrollableList(names, _itemScrollController, _itemPositionsListener),
-          Container(
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: 10),
-            margin: const EdgeInsets.only(bottom: 50),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: alphabets
-                  .map((alphabet) => InkWell(
-                        onTap: () {
-                          setSearchIndex(alphabet);
-                        },
-                        child: Text(
-                          alphabet,
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ))
-                  .toList(),
+    return isLoading
+        ? SizedBox()
+        : Scaffold(
+            appBar: AppBar(
+              backgroundColor: appbarColor,
+              title: const Text('Passwd Hints'),
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    showSearch(
+                        context: context, delegate: AppSearchDelegate(entries));
+                  },
+                  icon: const Icon(Icons.search),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          TextEditingController nameController = TextEditingController();
-          TextEditingController hintController = TextEditingController();
-          TextEditingController identifierController = TextEditingController();
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  scrollable: true,
-                  title: Text('New hint'),
-                  content: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Form(
-                      child: Column(
-                        children: <Widget>[
-                          TextFormField(
-                            controller: nameController,
-                            decoration: InputDecoration(
-                              labelText: 'Name',
-                              suffixText: '*',
-                              suffixStyle: TextStyle(
-                                color: Colors.red,
+            body: Stack(
+              children: [
+                ScrollableList(
+                    entries, _itemScrollController, _itemPositionsListener),
+                Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 10),
+                  margin: const EdgeInsets.only(bottom: 50),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: alphabets
+                        .map((alphabet) => InkWell(
+                              onTap: () {
+                                setSearchIndex(alphabet);
+                              },
+                              child: Text(
+                                alphabet,
+                                style: const TextStyle(fontSize: 16),
                               ),
-                              icon: Icon(Icons.short_text),
+                            ))
+                        .toList(),
+                  ),
+                ),
+              ],
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                TextEditingController nameController = TextEditingController();
+                TextEditingController hintController = TextEditingController();
+                TextEditingController identifierController =
+                    TextEditingController();
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        scrollable: true,
+                        title: Text('New hint'),
+                        content: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Form(
+                            child: Column(
+                              children: <Widget>[
+                                TextFormField(
+                                  controller: nameController,
+                                  decoration: InputDecoration(
+                                    labelText: 'Name',
+                                    suffixText: '*',
+                                    suffixStyle: TextStyle(
+                                      color: Colors.red,
+                                    ),
+                                    icon: Icon(Icons.short_text),
+                                  ),
+                                ),
+                                TextFormField(
+                                  controller: hintController,
+                                  autocorrect: false,
+                                  enableSuggestions: false,
+                                  decoration: InputDecoration(
+                                    labelText: 'Hint',
+                                    suffixText: '*',
+                                    suffixStyle: TextStyle(
+                                      color: Colors.red,
+                                    ),
+                                    icon: Icon(Icons.remove_red_eye),
+                                  ),
+                                ),
+                                TextFormField(
+                                  controller: identifierController,
+                                  decoration: InputDecoration(
+                                    labelText: 'Email/Username',
+                                    icon: Icon(Icons.alternate_email),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          TextFormField(
-                            controller: hintController,
-                            autocorrect: false,
-                            enableSuggestions: false,
-                            decoration: InputDecoration(
-                              labelText: 'Hint',
-                              suffixText: '*',
-                              suffixStyle: TextStyle(
-                                color: Colors.red,
-                              ),
-                              icon: Icon(Icons.remove_red_eye),
-                            ),
-                          ),
-                          TextFormField(
-                            controller: identifierController,
-                            decoration: InputDecoration(
-                              labelText: 'Email/Username',
-                              icon: Icon(Icons.alternate_email),
-                            ),
+                        ),
+                        actions: [
+                          ElevatedButton(
+                            child: Text('Add'),
+                            onPressed: () {
+                              addEntry(nameController.text, hintController.text,
+                                  identifierController.text);
+                              Navigator.pop(context);
+                            },
                           ),
                         ],
-                      ),
-                    ),
-                  ),
-                  actions: [
-                    ElevatedButton(
-                      child: Text('Add'),
-                      onPressed: () {
-                        // handle
-                        controller.addEntry(nameController.text,
-                            hintController.text, identifierController.text);
-                        controller.readEntries();
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ],
-                );
-              });
-        },
-        shape: CircleBorder(),
-        backgroundColor: Colors.green,
-        child: const Icon(Icons.add),
-      ),
-    );
+                      );
+                    });
+              },
+              shape: CircleBorder(),
+              backgroundColor: Colors.green,
+              child: const Icon(Icons.add),
+            ),
+          );
   }
 }
 
 class AppSearchDelegate extends SearchDelegate {
-  final List<String> names;
+  final List<HintEntry> entries;
 
-  AppSearchDelegate(this.names);
+  AppSearchDelegate(this.entries);
 
   @override
   List<Widget>? buildActions(BuildContext context) => [
@@ -291,7 +284,12 @@ class AppSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    List<String> suggestions = names.where((searchResult) {
+    List<String> entriesNames = [];
+    for (var he in entries) {
+      entriesNames.add(he.name);
+    }
+
+    List<String> suggestions = entriesNames.where((searchResult) {
       final result = searchResult.toLowerCase();
       final input = query.toLowerCase();
 
@@ -326,23 +324,40 @@ class FileController {
     return File('$path/$fileName');
   }
 
-  Future<int> addEntry(String name, String hint, String identifier) async {
+  Future<int> addEntry(
+      List entries, String name, String hint, String identifier) async {
     final file = await _localFile;
 
     HintEntry entry = HintEntry(name, hint, identifier);
     entries.add(entry);
     entries
+        .sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    entries
         .map(
-          (player) => entry.toJson(),
+          (entry) => entry.toJson(),
         )
         .toList();
 
     file.writeAsStringSync(json.encode(entries));
     // Write the file
-    return 0;
+    return 1;
   }
 
-  Future<int> readEntries() async {
+  Future<int> removeEntry(List entries, String name) async {
+    final file = await _localFile;
+
+    entries.removeWhere((element) => element.name == name);
+    entries
+        .map(
+          (entry) => entry.toJson(),
+        )
+        .toList();
+
+    file.writeAsStringSync(json.encode(entries));
+    return 1;
+  }
+
+  Future<int> readEntries(List entries) async {
     try {
       final file = await _localFile;
 
@@ -350,40 +365,18 @@ class FileController {
       final contents = await file.readAsString();
       var jsonResponse = jsonDecode(contents);
 
+      entries.clear();
       for (var e in jsonResponse) {
         HintEntry entry = HintEntry(e['name'], e['hint'], e['identifier']);
-        print(entry.name);
-        print(entry.hint);
-        print(entry.identifier);
+        entries.add(entry);
       }
+      entries
+          .sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
       return int.parse(contents);
     } catch (e) {
       // If encountering an error, return 0
       return 0;
     }
-  }
-}
-
-class HintEntry {
-  late String name;
-  late String hint;
-  late String identifier;
-
-  HintEntry(this.name, this.hint, this.identifier);
-
-  HintEntry.fromJson(Map<String, dynamic> json) {
-    name = json['name'];
-    hint = json['hint'];
-    identifier = json['identifier'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['name'] = name;
-    data['hint'] = hint;
-    data['identifier'] = identifier;
-
-    return data;
   }
 }
