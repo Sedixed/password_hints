@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+/// Widget displayed when no entries are found in the application.
 class EmptyListCard extends StatelessWidget {
+  /// Builds the widget.
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);

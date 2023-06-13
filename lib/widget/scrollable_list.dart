@@ -5,17 +5,23 @@ import 'empty_list_card.dart';
 import 'horizontal_labeled_separator.dart';
 import 'list_item.dart';
 
+/// Scrollable entries list.
 class ScrollableList extends StatelessWidget {
-  List entries;
+  /// Entries of the application.
+  final List entries;
+
+  /// Item scroll controller.
   final ItemScrollController itemScrollController;
+
+  /// Item positions listener.
   final ItemPositionsListener itemPositionsListener;
 
   ScrollableList(
       this.entries, this.itemScrollController, this.itemPositionsListener);
 
+  /// Builds the widget.
   @override
   Widget build(BuildContext context) {
-    print('CA CONSTRUIT LA LISTE');
     if (entries.isEmpty) {
       return EmptyListCard();
     }

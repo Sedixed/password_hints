@@ -9,4 +9,5 @@ const zIndex = 24;
 const firstLetterIndex = 65;
 
 // JSON
-const fileName = "passwd_hints_data.json";
+const dataFileName = "passwd_hints_data.json";
+const configFileName = "passwd_hints_config.json";

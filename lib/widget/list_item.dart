@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Handles the display and behaviour of a list item, eq. an entry.
 class ListItem extends StatelessWidget {
   const ListItem({
     Key? key,
@@ -7,9 +8,13 @@ class ListItem extends StatelessWidget {
     required this.index,
   }) : super(key: key);
 
+  /// The entries of the application.
   final List entries;
+
+  /// The current index of the entries to read.
   final int index;
 
+  /// Builds the widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -30,7 +35,8 @@ class ListItem extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
               // put it better (its ugly and not interactive)
-              child: Icon(Icons.remove_circle_outline),
+              child: Icon(Icons.remove_circle_outline,
+                  color: Color.fromARGB(255, 83, 19, 19)),
             ),
           ],
         ),
