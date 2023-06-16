@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:string_validator/string_validator.dart';
-import '../constants.dart';
+import '../../constants.dart';
 
 /// Horizontal labeled separator widget.
 class HorizontalLabeledSeparator extends StatelessWidget {
@@ -25,7 +25,8 @@ class HorizontalLabeledSeparator extends StatelessWidget {
                 entries[index].name.isNotEmpty &&
                 // first character is alpha
                 (isAlpha(entries[index].name[0]) &&
-                    entries[index - 1].name[0] != entries[index].name[0]) ||
+                    entries[index - 1].name[0].toLowerCase() !=
+                        entries[index].name[0].toLowerCase()) ||
             // first character is numeric
             (isFirstNumeric(index)) ||
             // first character is special
@@ -64,7 +65,7 @@ class HorizontalLabeledSeparator extends StatelessWidget {
   /// numeric character, or # if it is a special character.
   String getSeparatorLabel(String entryName) {
     if (isAlpha(entryName[0])) {
-      return entryName[0];
+      return entryName[0].toUpperCase();
     }
     if (isNumeric(entryName[0])) {
       return "0";

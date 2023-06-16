@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../constants.dart';
+import '../../util/buttons_actions.dart';
+
 /// Handles the display and behaviour of a list item, eq. an entry.
 class ListItem extends StatelessWidget {
   const ListItem({
@@ -17,7 +20,7 @@ class ListItem extends StatelessWidget {
   /// Builds the widget.
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: 50,
       child: Card(
@@ -26,18 +29,25 @@ class ListItem extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
-              child: Text(
+              child: TextButton(
                 // handle overflow
-                entries[index - 1].name,
-                style: const TextStyle(fontSize: 20),
+                onPressed: () {
+                  hintEntryDisplayButtonOnPress(context, entries[index - 1]);
+                },
+                child: Text(entries[index - 1].name,
+                    style: const TextStyle(fontSize: 20)),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              // put it better (its ugly and not interactive)
-              child: Icon(Icons.remove_circle_outline,
-                  color: Color.fromARGB(255, 83, 19, 19)),
-            ),
+            IconButton(
+              icon: Icon(
+                Icons.remove_circle_outline,
+                color: entryRemovingColor,
+              ),
+              onPressed: () {
+                confirmEntryDeletionButtonOnPress(
+                    context, entries[index - 1].name);
+              },
+            )
           ],
         ),
       ),

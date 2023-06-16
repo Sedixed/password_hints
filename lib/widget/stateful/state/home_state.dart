@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:string_validator/string_validator.dart';
 
-import '../util/app_search_delegate.dart';
-import '../widget/home.dart';
-import '../constants.dart';
-import '../util/data_file_controller.dart';
-import '../util/hint_entry.dart';
+import '../../../util/app_search_delegate.dart';
+import '../../../util/buttons_actions.dart';
+import '../home.dart';
+import '../../../constants.dart';
+import '../../../util/data_file_controller.dart';
+import '../../../util/hint_entry.dart';
 
-import '../widget/scrollable_list.dart';
+import '../../stateless/scrollable_list.dart';
 
 import 'package:faker/faker.dart';
 
@@ -24,7 +25,7 @@ List<String> hints = List<String>.generate(
 List<String> ids =
     List<String>.generate(nb, (index) => faker.guid.guid(), growable: true);
 
-/// _HomeState widget : defines the state of the app.
+/// HomeState widget : defines the state of the app.
 class HomeState extends State<Home> {
   // Alphabet
   final alphabets = List.generate(
@@ -46,6 +47,31 @@ class HomeState extends State<Home> {
 
   // Loading toggle
   bool isLoading = false;
+
+  /// Initializes the home state by reading the data file and adding the missing
+  /// alphabet elements (0 for numeric and # for special characters).
+  @override
+  void initState() {
+    print('init');
+    isLoading = true;
+    alphabets.add('0');
+    alphabets.add('#');
+    super.initState();
+
+    // faking
+    for (var i = 0; i < nb; ++i) {
+      addEntry(names[i], hints[i], ids[i]);
+    }
+
+    controller.readEntries(entries).then(
+      (value) {
+        setState(() {
+          isLoading = false;
+          print(entries.length);
+        });
+      },
+    );
+  }
 
   /// Sets the search index after a tap on searchLetter on the screen.
   /// If a matching entry is directly found, jumps to it. Otherwise, it
@@ -94,34 +120,8 @@ class HomeState extends State<Home> {
     });
   }
 
-  /// Initializes the home state by reading the data file and adding the missing
-  /// alphabet elements (0 for numeric and # for special characters).
-  @override
-  void initState() {
-    print('init');
-    isLoading = true;
-    alphabets.add('0');
-    alphabets.add('#');
-    super.initState();
-
-    // faking
-    for (var i = 0; i < nb; ++i) {
-      addEntry(names[i], hints[i], ids[i]);
-    }
-
-    controller.readEntries(entries).then(
-      (value) {
-        setState(() {
-          isLoading = false;
-          print(entries.length);
-        });
-      },
-    );
-  }
-
-  @override
-
   /// Builds the home widget.
+  @override
   Widget build(BuildContext context) {
     return isLoading
         ? SizedBox()
@@ -166,68 +166,7 @@ class HomeState extends State<Home> {
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                TextEditingController nameController = TextEditingController();
-                TextEditingController hintController = TextEditingController();
-                TextEditingController identifierController =
-                    TextEditingController();
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        scrollable: true,
-                        title: Text('New hint'),
-                        content: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Form(
-                            child: Column(
-                              children: <Widget>[
-                                TextFormField(
-                                  controller: nameController,
-                                  decoration: InputDecoration(
-                                    labelText: 'Name',
-                                    suffixText: '*',
-                                    suffixStyle: TextStyle(
-                                      color: Colors.red,
-                                    ),
-                                    icon: Icon(Icons.short_text),
-                                  ),
-                                ),
-                                TextFormField(
-                                  controller: hintController,
-                                  autocorrect: false,
-                                  enableSuggestions: false,
-                                  decoration: InputDecoration(
-                                    labelText: 'Hint',
-                                    suffixText: '*',
-                                    suffixStyle: TextStyle(
-                                      color: Colors.red,
-                                    ),
-                                    icon: Icon(Icons.remove_red_eye),
-                                  ),
-                                ),
-                                TextFormField(
-                                  controller: identifierController,
-                                  decoration: InputDecoration(
-                                    labelText: 'Email/Username',
-                                    icon: Icon(Icons.alternate_email),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        actions: [
-                          ElevatedButton(
-                            child: Text('Add'),
-                            onPressed: () {
-                              addEntry(nameController.text, hintController.text,
-                                  identifierController.text);
-                              Navigator.pop(context);
-                            },
-                          ),
-                        ],
-                      );
-                    });
+                hintEntryAdditionButtonOnPress(context, this, entries);
               },
               shape: CircleBorder(),
               backgroundColor: Colors.green,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'home_state.dart';
+import 'state/home_state.dart';
 
 /// Home widget : contains the state of the app.
 class Home extends StatefulWidget {

@@ -1,0 +1,18 @@
+-----------------------------------------------------------------------------
+A FAIRE :
+-----------------------------------------------------------------------------
+
+style des boutons
+lecture des couleurs dans le fichier config 
+gestion du thème du tel -
+
+
+
+mettre des _ devant les attributs pour qu'ils soient privés
+
+-----------------------------------------------------------------------------
+FAIT :
+-----------------------------------------------------------------------------
+
+désactiver bouton sauvegarde quand pas besoin (édition)
+faire fonctionner le onchange des input
