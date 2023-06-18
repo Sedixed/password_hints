@@ -28,14 +28,14 @@ List<String> ids =
 /// HomeState widget : defines the state of the app.
 class HomeState extends State<Home> {
   // Alphabet
-  final alphabets = List.generate(
+  final _alphabets = List.generate(
       26, (index) => String.fromCharCode(index + firstLetterIndex));
 
   // Search index (right panel)
   int _searchIndex = 0;
 
   // Hint entries
-  List<HintEntry> entries = [];
+  List<HintEntry> _entries = [];
 
   // Scroll controllers / jumpers
   final ItemScrollController _itemScrollController = ItemScrollController();
@@ -43,19 +43,18 @@ class HomeState extends State<Home> {
       ItemPositionsListener.create();
 
   // File controller
-  final DataFileController controller = DataFileController();
+  final DataFileController _controller = DataFileController();
 
   // Loading toggle
-  bool isLoading = false;
+  bool _isLoading = false;
 
   /// Initializes the home state by reading the data file and adding the missing
   /// alphabet elements (0 for numeric and # for special characters).
   @override
   void initState() {
-    print('init');
-    isLoading = true;
-    alphabets.add('0');
-    alphabets.add('#');
+    _isLoading = true;
+    _alphabets.add('0');
+    _alphabets.add('#');
     super.initState();
 
     // faking
@@ -63,11 +62,11 @@ class HomeState extends State<Home> {
       addEntry(names[i], hints[i], ids[i]);
     }
 
-    controller.readEntries(entries).then(
+    _controller.readEntries(_entries).then(
       (value) {
         setState(() {
-          isLoading = false;
-          print(entries.length);
+          _isLoading = false;
+          print(_entries.length);
         });
       },
     );
@@ -79,7 +78,7 @@ class HomeState extends State<Home> {
   /// after the searched one, no jump is performed.
   void setSearchIndex(String searchLetter) {
     setState(() {
-      _searchIndex = entries.indexWhere((element) =>
+      _searchIndex = _entries.indexWhere((element) =>
           element.name.isNotEmpty &&
           (element.name[0] == searchLetter ||
               (isNumeric(element.name[0]) && searchLetter == "0") ||
@@ -96,7 +95,7 @@ class HomeState extends State<Home> {
             break;
           }
           ++i;
-          _searchIndex = entries.indexWhere((element) =>
+          _searchIndex = _entries.indexWhere((element) =>
               element.name.isNotEmpty &&
               element.name[0] == String.fromCharCode(asciiLetter + i));
         }
@@ -104,8 +103,8 @@ class HomeState extends State<Home> {
         if (_searchIndex >= 0) {
           _itemScrollController.jumpTo(index: _searchIndex);
         } else {
-          if (entries.isNotEmpty) {
-            _searchIndex = entries.length - 1;
+          if (_entries.isNotEmpty) {
+            _searchIndex = _entries.length - 1;
             _itemScrollController.jumpTo(index: _searchIndex);
           }
         }
@@ -116,14 +115,14 @@ class HomeState extends State<Home> {
   /// Adds an entry with the given [name], [hint], and optional [identifier].
   void addEntry(String name, String hint, String identifier) {
     setState(() {
-      controller.addEntry(entries, name, hint, identifier);
+      _controller.addEntry(_entries, name, hint, identifier);
     });
   }
 
   /// Builds the home widget.
   @override
   Widget build(BuildContext context) {
-    return isLoading
+    return _isLoading
         ? SizedBox()
         : Scaffold(
             appBar: AppBar(
@@ -133,7 +132,8 @@ class HomeState extends State<Home> {
                 IconButton(
                   onPressed: () {
                     showSearch(
-                        context: context, delegate: AppSearchDelegate(entries));
+                        context: context,
+                        delegate: AppSearchDelegate(_entries));
                   },
                   icon: const Icon(Icons.search),
                 ),
@@ -142,14 +142,14 @@ class HomeState extends State<Home> {
             body: Stack(
               children: [
                 ScrollableList(
-                    entries, _itemScrollController, _itemPositionsListener),
+                    _entries, _itemScrollController, _itemPositionsListener),
                 Container(
                   alignment: Alignment.centerRight,
                   padding: const EdgeInsets.only(right: 10),
                   margin: const EdgeInsets.only(bottom: 50),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: alphabets
+                    children: _alphabets
                         .map((alphabet) => InkWell(
                               onTap: () {
                                 setSearchIndex(alphabet);
@@ -166,7 +166,7 @@ class HomeState extends State<Home> {
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                hintEntryAdditionButtonOnPress(context, this, entries);
+                hintEntryAdditionButtonOnPress(context, this, _entries);
               },
               shape: CircleBorder(),
               backgroundColor: Colors.green,

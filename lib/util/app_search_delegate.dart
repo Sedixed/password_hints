@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'hint_entry.dart';
 
 class AppSearchDelegate extends SearchDelegate {
-  final List<HintEntry> entries;
+  final List<HintEntry> _entries;
 
-  AppSearchDelegate(this.entries);
+  AppSearchDelegate(this._entries);
 
   @override
   List<Widget>? buildActions(BuildContext context) => [
@@ -35,7 +35,7 @@ class AppSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     List<String> entriesNames = [];
-    for (var he in entries) {
+    for (var he in _entries) {
       entriesNames.add(he.name);
     }
 

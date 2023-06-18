@@ -4,16 +4,16 @@ import 'package:passwd_hints/constants.dart';
 import '../hint_entry_dialog.dart';
 
 class HintEntryDialogState extends State<HintEntryDialog> {
-  late TextEditingController nameController;
-  FocusNode nameFocus = FocusNode();
-  late TextEditingController hintController;
-  FocusNode hintFocus = FocusNode();
-  late TextEditingController identifierController;
-  FocusNode identifierFocus = FocusNode();
+  late TextEditingController _nameController;
+  FocusNode _nameFocus = FocusNode();
+  late TextEditingController _hintController;
+  FocusNode _hintFocus = FocusNode();
+  late TextEditingController _identifierController;
+  FocusNode _identifierFocus = FocusNode();
 
-  bool nameChanged = false;
-  bool hintChanged = false;
-  bool identifierChanged = false;
+  bool _nameChanged = false;
+  bool _hintChanged = false;
+  bool _identifierChanged = false;
 
   @override
   HintEntryDialog get widget => super.widget;
@@ -21,9 +21,10 @@ class HintEntryDialogState extends State<HintEntryDialog> {
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController(text: widget.entry.name);
-    hintController = TextEditingController(text: widget.entry.hint);
-    identifierController = TextEditingController(text: widget.entry.identifier);
+    _nameController = TextEditingController(text: widget.entry.name);
+    _hintController = TextEditingController(text: widget.entry.hint);
+    _identifierController =
+        TextEditingController(text: widget.entry.identifier);
   }
 
   @override
@@ -34,8 +35,8 @@ class HintEntryDialogState extends State<HintEntryDialog> {
         child: Column(
           children: <Widget>[
             TextFormField(
-              controller: nameController,
-              focusNode: nameFocus,
+              controller: _nameController,
+              focusNode: _nameFocus,
               onChanged: (newValue) =>
                   onEditionStep(newValue, widget.entry.name, nameRef),
               decoration: InputDecoration(
@@ -48,8 +49,8 @@ class HintEntryDialogState extends State<HintEntryDialog> {
               ),
             ),
             TextFormField(
-              controller: hintController,
-              focusNode: hintFocus,
+              controller: _hintController,
+              focusNode: _hintFocus,
               onChanged: (newValue) =>
                   onEditionStep(newValue, widget.entry.hint, hintRef),
               autocorrect: false,
@@ -64,8 +65,8 @@ class HintEntryDialogState extends State<HintEntryDialog> {
               ),
             ),
             TextFormField(
-                controller: identifierController,
-                focusNode: identifierFocus,
+                controller: _identifierController,
+                focusNode: _identifierFocus,
                 onChanged: (newValue) => onEditionStep(
                     newValue, widget.entry.identifier, identifierRef),
                 decoration: InputDecoration(
@@ -75,7 +76,7 @@ class HintEntryDialogState extends State<HintEntryDialog> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                onPressed: nameChanged || hintChanged || identifierChanged
+                onPressed: _nameChanged || _hintChanged || _identifierChanged
                     ? () {
                         print('enabled');
                       }
@@ -93,13 +94,13 @@ class HintEntryDialogState extends State<HintEntryDialog> {
     setState(() {
       switch (fieldRef) {
         case nameRef:
-          nameChanged = newValue != oldValue;
+          _nameChanged = newValue != oldValue;
           break;
         case hintRef:
-          hintChanged = newValue != oldValue;
+          _hintChanged = newValue != oldValue;
           break;
         case identifierRef:
-          identifierChanged = newValue != oldValue;
+          _identifierChanged = newValue != oldValue;
           break;
         default:
           break;

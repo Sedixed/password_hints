@@ -27,7 +27,7 @@ class DataFileController {
 
     HintEntry entry = HintEntry(name, hint, identifier);
     entries.add(entry);
-    entries.sort((a, b) => compareEntries(a, b));
+    entries.sort((a, b) => _compareEntries(a, b));
 
     entries
         .map(
@@ -71,7 +71,7 @@ class DataFileController {
         HintEntry entry = HintEntry(e['name'], e['hint'], e['identifier']);
         entries.add(entry);
       }
-      entries.sort((a, b) => compareEntries(a, b));
+      entries.sort((a, b) => _compareEntries(a, b));
 
       return int.parse(contents);
     } catch (e) {
@@ -83,7 +83,7 @@ class DataFileController {
   /// Compare two entries [a] and [b] to perform sorting operations on them.
   /// Alphabetical starting names are placed first, then numeric starting names,
   /// and finally special characters starting names.
-  int compareEntries(HintEntry a, HintEntry b) {
+  int _compareEntries(HintEntry a, HintEntry b) {
     String relevantA = a.name[0];
     String relevantB = b.name[0];
 

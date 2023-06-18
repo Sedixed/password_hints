@@ -5,32 +5,32 @@ import '../../constants.dart';
 /// Horizontal labeled separator widget.
 class HorizontalLabeledSeparator extends StatelessWidget {
   /// The entries of the application.
-  final List entries;
+  final List _entries;
 
   /// The current index of the entries to read.
-  final int index;
+  final int _index;
 
   HorizontalLabeledSeparator(
-    this.entries,
-    this.index,
+    this._entries,
+    this._index,
   );
 
   /// Builds the widget.
   @override
   Widget build(BuildContext context) {
-    if (index == 0 ||
-        (index > 0 &&
-                index < entries.length &&
-                entries[index - 1].name.isNotEmpty &&
-                entries[index].name.isNotEmpty &&
+    if (_index == 0 ||
+        (_index > 0 &&
+                _index < _entries.length &&
+                _entries[_index - 1].name.isNotEmpty &&
+                _entries[_index].name.isNotEmpty &&
                 // first character is alpha
-                (isAlpha(entries[index].name[0]) &&
-                    entries[index - 1].name[0].toLowerCase() !=
-                        entries[index].name[0].toLowerCase()) ||
+                (isAlpha(_entries[_index].name[0]) &&
+                    _entries[_index - 1].name[0].toLowerCase() !=
+                        _entries[_index].name[0].toLowerCase()) ||
             // first character is numeric
-            (isFirstNumeric(index)) ||
+            (isFirstNumeric(_index)) ||
             // first character is special
-            (isFirstSpecial(index)))) {
+            (isFirstSpecial(_index)))) {
       return Row(
         children: <Widget>[
           Expanded(
@@ -42,9 +42,9 @@ class HorizontalLabeledSeparator extends StatelessWidget {
               ),
             ),
           ),
-          Text(entries[index].name.isEmpty
+          Text(_entries[_index].name.isEmpty
               ? 'SAMPLE TEXT'
-              : getSeparatorLabel(entries[index].name)),
+              : getSeparatorLabel(_entries[_index].name)),
           Expanded(
             child: Container(
               margin: const EdgeInsets.only(left: 10.0),
@@ -76,13 +76,13 @@ class HorizontalLabeledSeparator extends StatelessWidget {
   /// Returns true if the entry name at [index] is the first entry readen which
   /// name starts with a digit, false otherwise.
   bool isFirstNumeric(int index) {
-    if (isNumeric(entries[index].name[0])) {
-      for (var i = 0; i < entries.length; ++i) {
+    if (isNumeric(_entries[index].name[0])) {
+      for (var i = 0; i < _entries.length; ++i) {
         if (i == index) {
           continue;
         }
-        if (isNumeric(entries[i].name[0]) &&
-            (i == 0 || !isNumeric(entries[i - 1].name[0]))) {
+        if (isNumeric(_entries[i].name[0]) &&
+            (i == 0 || !isNumeric(_entries[i - 1].name[0]))) {
           return false;
         }
       }
@@ -94,13 +94,13 @@ class HorizontalLabeledSeparator extends StatelessWidget {
   /// Returns true if the entry name at [index] is the first entry readen which
   /// name starts with a special character, false otherwise.
   bool isFirstSpecial(int index) {
-    if (!isAlphanumeric(entries[index].name[0])) {
-      for (var i = 0; i < entries.length; ++i) {
+    if (!isAlphanumeric(_entries[index].name[0])) {
+      for (var i = 0; i < _entries.length; ++i) {
         if (i == index) {
           continue;
         }
-        if (!isAlphanumeric(entries[i].name[0]) &&
-            (i == 0 || isAlphanumeric(entries[i - 1].name[0]))) {
+        if (!isAlphanumeric(_entries[i].name[0]) &&
+            (i == 0 || isAlphanumeric(_entries[i - 1].name[0]))) {
           return false;
         }
       }

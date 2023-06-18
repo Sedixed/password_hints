@@ -8,7 +8,7 @@ gestion du thème du tel -
 
 
 
-mettre des _ devant les attributs pour qu'ils soient privés
+
 
 -----------------------------------------------------------------------------
 FAIT :
@@ -16,3 +16,4 @@ FAIT :
 
 désactiver bouton sauvegarde quand pas besoin (édition)
 faire fonctionner le onchange des input
+mettre des _ devant les attributs pour qu'ils soient privés (là ou c'était possible)
