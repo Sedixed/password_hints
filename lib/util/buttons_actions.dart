@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:passwd_hints/util/colors/app_colors.dart';
 import 'package:passwd_hints/util/hint_entry.dart';
+import 'package:passwd_hints/util/theme_mode.dart';
 import 'package:passwd_hints/widget/stateful/hint_entry_dialog.dart';
 import 'package:passwd_hints/widget/stateful/state/home_state.dart';
 
 void hintEntryAdditionButtonOnPress(
     BuildContext context, HomeState caller, List<HintEntry> entries) {
   TextEditingController nameController = TextEditingController();
+  FocusNode nameFocus = FocusNode();
   TextEditingController hintController = TextEditingController();
+  FocusNode hintFocus = FocusNode();
   TextEditingController identifierController = TextEditingController();
+  FocusNode identifierFocus = FocusNode();
 
   bool hintKeyAlreadyExisting(String entryName, List<HintEntry> entries) {
     for (var entry in entries) {
@@ -26,74 +31,84 @@ void hintEntryAdditionButtonOnPress(
         return AlertDialog(
           scrollable: true,
           title: Text('New hint'),
-          content: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Form(
-              key: formKey,
-              child: Column(
-                children: <Widget>[
-                  TextFormField(
-                    controller: nameController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Name must not be blank.";
-                      }
-                      if (hintKeyAlreadyExisting(value, entries)) {
-                        return "Hint name already existing.";
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      labelText: 'Name',
-                      suffixText: '  *',
-                      suffixStyle: TextStyle(
-                        color: Colors.red,
-                      ),
-                      icon: Icon(Icons.short_text),
+          content: Form(
+            key: formKey,
+            child: Column(
+              children: <Widget>[
+                TextFormField(
+                  controller: nameController,
+                  focusNode: nameFocus,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Name must not be blank.";
+                    }
+                    if (hintKeyAlreadyExisting(value, entries)) {
+                      return "Hint name already existing.";
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Name',
+                    suffixText: '  *',
+                    suffixStyle: TextStyle(
+                      color: Colors.red,
                     ),
+                    icon: Icon(Icons.short_text),
                   ),
-                  TextFormField(
-                    controller: hintController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Hint must not be blank.";
-                      }
-                      return null;
-                    },
-                    autocorrect: false,
-                    enableSuggestions: false,
-                    decoration: InputDecoration(
-                      labelText: 'Hint',
-                      suffixText: '  *',
-                      suffixStyle: TextStyle(
-                        color: Colors.red,
-                      ),
-                      icon: Icon(Icons.remove_red_eye),
+                ),
+                TextFormField(
+                  controller: hintController,
+                  focusNode: hintFocus,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Hint must not be blank.";
+                    }
+                    return null;
+                  },
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  decoration: InputDecoration(
+                    labelText: 'Hint',
+                    suffixText: '  *',
+                    suffixStyle: TextStyle(
+                      color: Colors.red,
                     ),
+                    icon: Icon(Icons.remove_red_eye),
                   ),
-                  TextFormField(
-                    controller: identifierController,
-                    decoration: InputDecoration(
-                      labelText: 'Email/Username',
-                      icon: Icon(Icons.alternate_email),
-                    ),
+                ),
+                TextFormField(
+                  controller: identifierController,
+                  focusNode: identifierFocus,
+                  decoration: InputDecoration(
+                    labelText: 'Email/Username',
+                    icon: Icon(Icons.alternate_email),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           actions: [
-            ElevatedButton(
-              child: Text('Add'),
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  // If the form is valid, display a snackbar. In the real world,
-                  // you'd often call a server or save the information in a database.
-                  caller.addEntry(nameController.text, hintController.text,
-                      identifierController.text);
-                  Navigator.pop(context);
-                }
-              },
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 22.0),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: context.isDarkMode
+                            ? AppColor.darkButtonColor.color
+                            : AppColor.buttonColor.color),
+                    child: Text('Add'),
+                    onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        caller.addEntry(nameController.text,
+                            hintController.text, identifierController.text);
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                ),
+              ),
             ),
           ],
         );
@@ -120,12 +135,9 @@ void confirmEntryDeletionButtonOnPress(BuildContext context, String name) {
               onPressed: () {
                 print('confirmed');
               },
-              style: const ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll<Color>(
-                    Color.fromARGB(255, 131, 4, 4)),
-                foregroundColor: MaterialStatePropertyAll<Color>(
-                    Color.fromARGB(255, 236, 231, 232)),
-              ),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColor.removalButtonColor.color,
+                  foregroundColor: AppColor.white.color),
               child: Text('Yes'),
             ),
             ElevatedButton(
@@ -133,11 +145,10 @@ void confirmEntryDeletionButtonOnPress(BuildContext context, String name) {
               onPressed: () {
                 Navigator.pop(context);
               },
-              style: const ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll<Color>(
-                    Color.fromARGB(255, 42, 43, 42)),
-                foregroundColor: MaterialStatePropertyAll<Color>(
-                    Color.fromARGB(255, 236, 231, 232)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: context.isDarkMode
+                    ? AppColor.darkHeavyButtonColor.color
+                    : AppColor.heavyButtonColor.color,
               ),
               child: Text('No'),
             ),

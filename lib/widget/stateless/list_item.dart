@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../constants.dart';
 import '../../util/buttons_actions.dart';
+import '../../util/colors/app_colors.dart';
 
 /// Handles the display and behaviour of a list item, eq. an entry.
 class ListItem extends StatelessWidget {
@@ -41,7 +41,7 @@ class ListItem extends StatelessWidget {
             IconButton(
               icon: Icon(
                 Icons.remove_circle_outline,
-                color: entryRemovingColor,
+                color: AppColor.darkEntryRemovingColor.color,
               ),
               onPressed: () {
                 confirmEntryDeletionButtonOnPress(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:passwd_hints/util/colors/app_colors.dart';
+import 'package:passwd_hints/util/theme_mode.dart';
 import 'package:string_validator/string_validator.dart';
-import '../../constants.dart';
 
 /// Horizontal labeled separator widget.
 class HorizontalLabeledSeparator extends StatelessWidget {
@@ -31,13 +32,16 @@ class HorizontalLabeledSeparator extends StatelessWidget {
             (isFirstNumeric(_index)) ||
             // first character is special
             (isFirstSpecial(_index)))) {
+      bool isDarkMode = context.isDarkMode;
       return Row(
         children: <Widget>[
           Expanded(
             child: Container(
               margin: const EdgeInsets.only(right: 10.0),
               child: Divider(
-                color: sepColor,
+                color: isDarkMode
+                    ? AppColor.darkSepColor.color
+                    : AppColor.sepColor.color,
                 thickness: 2,
               ),
             ),
@@ -49,7 +53,9 @@ class HorizontalLabeledSeparator extends StatelessWidget {
             child: Container(
               margin: const EdgeInsets.only(left: 10.0),
               child: Divider(
-                color: sepColor,
+                color: isDarkMode
+                    ? AppColor.darkSepColor.color
+                    : AppColor.sepColor.color,
                 thickness: 2,
               ),
             ),

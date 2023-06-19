@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'buttons_actions.dart';
 import 'hint_entry.dart';
 
 class AppSearchDelegate extends SearchDelegate {
   final List<HintEntry> _entries;
+  final BuildContext _baseContext;
 
-  AppSearchDelegate(this._entries);
+  AppSearchDelegate(this._entries, this._baseContext);
 
   @override
   List<Widget>? buildActions(BuildContext context) => [
@@ -28,9 +30,9 @@ class AppSearchDelegate extends SearchDelegate {
       icon: const Icon(Icons.arrow_back));
 
   @override
-  Widget buildResults(BuildContext context) => Center(
-      child: Text(query,
-          style: const TextStyle(fontSize: 64, fontWeight: FontWeight.bold)));
+  Widget buildResults(BuildContext context) {
+    return Container();
+  }
 
   @override
   Widget buildSuggestions(BuildContext context) {
@@ -59,5 +61,13 @@ class AppSearchDelegate extends SearchDelegate {
         );
       },
     );
+  }
+
+  @override
+  void showResults(context) {
+    Navigator.pop(context);
+
+    hintEntryDisplayButtonOnPress(
+        _baseContext, _entries.firstWhere((element) => element.name == query));
   }
 }

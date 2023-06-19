@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:passwd_hints/util/colors/app_colors.dart';
 
 import 'widget/stateful/home.dart';
 
@@ -16,8 +17,15 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(
+      themeMode: ThemeMode.light,
+      theme: ThemeData(
+          brightness: Brightness.light,
+          useMaterial3: true,
+          primarySwatch: AppColor.black.toMaterialColor()),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
         useMaterial3: true,
+        primarySwatch: AppColor.white.toMaterialColor(),
       ),
       home: SafeArea(
         child: Home(),

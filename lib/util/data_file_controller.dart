@@ -61,7 +61,12 @@ class DataFileController {
   Future<int> readEntries(List entries) async {
     try {
       final file = await _localFile;
-
+      print(file.path);
+      if (!await file.exists()) {
+        file.create();
+        print(file.path);
+      }
+      print('read');
       // Read the file
       final contents = await file.readAsString();
       var jsonResponse = jsonDecode(contents);

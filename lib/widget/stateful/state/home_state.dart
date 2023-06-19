@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:passwd_hints/util/colors/app_colors.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:string_validator/string_validator.dart';
 
@@ -126,14 +127,14 @@ class HomeState extends State<Home> {
         ? SizedBox()
         : Scaffold(
             appBar: AppBar(
-              backgroundColor: appbarColor,
+              backgroundColor: AppColor.appMainColor.color,
               title: const Text('Passwd Hints'),
               actions: [
                 IconButton(
                   onPressed: () {
                     showSearch(
                         context: context,
-                        delegate: AppSearchDelegate(_entries));
+                        delegate: AppSearchDelegate(_entries, context));
                   },
                   icon: const Icon(Icons.search),
                 ),
@@ -170,7 +171,10 @@ class HomeState extends State<Home> {
               },
               shape: CircleBorder(),
               backgroundColor: Colors.green,
-              child: const Icon(Icons.add),
+              child: Icon(
+                Icons.add,
+                color: AppColor.white.color,
+              ),
             ),
           );
   }
