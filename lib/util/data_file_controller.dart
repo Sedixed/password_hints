@@ -22,21 +22,21 @@ class DataFileController {
   /// Adds an entry to the [entries] list and then to the data file with the
   /// given parameters ([name], [hint], and optional [identifier]).
   Future<int> addEntry(
-      List entries, String name, String hint, String identifier) async {
+    List entries,
+    String name,
+    String hint,
+    String identifier,
+  ) async {
     final file = await _localFile;
 
     HintEntry entry = HintEntry(name, hint, identifier);
     entries.add(entry);
     entries.sort((a, b) => _compareEntries(a, b));
 
-    entries
-        .map(
-          (entry) => entry.toJson(),
-        )
-        .toList();
-
-    file.writeAsStringSync(json.encode(entries));
+    entries.map((entry) => entry.toJson()).toList();
     // Write the file
+    file.writeAsStringSync(json.encode(entries));
+
     return 1;
   }
 
@@ -46,12 +46,8 @@ class DataFileController {
     final file = await _localFile;
 
     entries.removeWhere((element) => element.name == name);
-    entries
-        .map(
-          (entry) => entry.toJson(),
-        )
-        .toList();
-
+    entries.map((entry) => entry.toJson()).toList();
+    // Write the file
     file.writeAsStringSync(json.encode(entries));
     return 1;
   }
@@ -66,7 +62,6 @@ class DataFileController {
         file.create();
         print(file.path);
       }
-      print('read');
       // Read the file
       final contents = await file.readAsString();
       var jsonResponse = jsonDecode(contents);

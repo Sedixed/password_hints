@@ -19,7 +19,12 @@ enum AppColor {
   heavyButtonColor(color: Color.fromARGB(255, 187, 182, 182)),
   darkHeavyButtonColor(color: Color.fromARGB(255, 42, 43, 42)),
   // Removal button color
-  removalButtonColor(color: Color.fromARGB(255, 131, 4, 4));
+  removalButtonColor(color: Color.fromARGB(255, 131, 4, 4)),
+  // Creation button color
+  createButtonColor(color: Color.fromARGB(255, 75, 202, 79)),
+  // Edition button color
+  editButtonColor(color: Color.fromARGB(255, 107, 174, 228)),
+  darkEditButtonColor(color: Color.fromARGB(255, 70, 129, 177));
 
   final Color color;
   const AppColor({required this.color});

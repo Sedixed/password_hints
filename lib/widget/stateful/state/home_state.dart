@@ -30,7 +30,9 @@ List<String> ids =
 class HomeState extends State<Home> {
   // Alphabet
   final _alphabets = List.generate(
-      26, (index) => String.fromCharCode(index + firstLetterIndex));
+    26,
+    (index) => String.fromCharCode(index + firstLetterIndex),
+  );
 
   // Search index (right panel)
   int _searchIndex = 0;
@@ -59,18 +61,11 @@ class HomeState extends State<Home> {
     super.initState();
 
     // faking
-    for (var i = 0; i < nb; ++i) {
+    /*for (var i = 0; i < nb; ++i) {
       addEntry(names[i], hints[i], ids[i]);
-    }
+    }*/
 
-    _controller.readEntries(_entries).then(
-      (value) {
-        setState(() {
-          _isLoading = false;
-          print(_entries.length);
-        });
-      },
-    );
+    readEntries();
   }
 
   /// Sets the search index after a tap on searchLetter on the screen.
@@ -120,6 +115,17 @@ class HomeState extends State<Home> {
     });
   }
 
+  /// Reads the entries from the data file.
+  void readEntries() {
+    _controller.readEntries(_entries).then(
+      (value) {
+        setState(() {
+          _isLoading = false;
+        });
+      },
+    );
+  }
+
   /// Builds the home widget.
   @override
   Widget build(BuildContext context) {
@@ -133,8 +139,9 @@ class HomeState extends State<Home> {
                 IconButton(
                   onPressed: () {
                     showSearch(
-                        context: context,
-                        delegate: AppSearchDelegate(_entries, context));
+                      context: context,
+                      delegate: AppSearchDelegate(_entries, context, this),
+                    );
                   },
                   icon: const Icon(Icons.search),
                 ),
@@ -143,15 +150,21 @@ class HomeState extends State<Home> {
             body: Stack(
               children: [
                 ScrollableList(
-                    _entries, _itemScrollController, _itemPositionsListener),
+                  _entries,
+                  _itemScrollController,
+                  _itemPositionsListener,
+                  this,
+                ),
                 Container(
                   alignment: Alignment.centerRight,
                   padding: const EdgeInsets.only(right: 10),
                   margin: const EdgeInsets.only(bottom: 50),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: _alphabets
-                        .map((alphabet) => InkWell(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _alphabets
+                          .map(
+                            (alphabet) => InkWell(
                               onTap: () {
                                 setSearchIndex(alphabet);
                               },
@@ -159,18 +172,26 @@ class HomeState extends State<Home> {
                                 alphabet,
                                 style: const TextStyle(fontSize: 16),
                               ),
-                            ))
-                        .toList(),
+                            ),
+                          )
+                          .toList(),
+                    ),
                   ),
                 ),
               ],
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                hintEntryAdditionButtonOnPress(context, this, _entries);
+                setState(() {
+                  hintEntryAdditionButtonOnPress(
+                    context,
+                    this,
+                    _entries,
+                  );
+                });
               },
               shape: CircleBorder(),
-              backgroundColor: Colors.green,
+              backgroundColor: AppColor.createButtonColor.color,
               child: Icon(
                 Icons.add,
                 color: AppColor.white.color,

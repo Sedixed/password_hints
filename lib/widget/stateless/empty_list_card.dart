@@ -16,8 +16,9 @@ class EmptyListCard extends StatelessWidget {
         child: Card(
           color: theme.colorScheme.primary,
           child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Text("Nothing here..yet !", style: style)),
+            padding: const EdgeInsets.all(20),
+            child: Text("Nothing here..yet !", style: style),
+          ),
         ),
       ),
     );

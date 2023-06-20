@@ -9,8 +9,10 @@ class HintEntry {
   /// The optional identifier (username, email, ..).
   late String identifier;
 
+  /// Default constructor.
   HintEntry(this.name, this.hint, this.identifier);
 
+  /// Constructor from a JSON map.
   HintEntry.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     hint = json['hint'];

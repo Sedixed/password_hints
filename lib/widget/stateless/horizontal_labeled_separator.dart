@@ -46,9 +46,11 @@ class HorizontalLabeledSeparator extends StatelessWidget {
               ),
             ),
           ),
-          Text(_entries[_index].name.isEmpty
-              ? 'SAMPLE TEXT'
-              : getSeparatorLabel(_entries[_index].name)),
+          Text(
+            _entries[_index].name.isEmpty
+                ? 'SAMPLE TEXT'
+                : getSeparatorLabel(_entries[_index].name),
+          ),
           Expanded(
             child: Container(
               margin: const EdgeInsets.only(left: 10.0),

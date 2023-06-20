@@ -1,22 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../util/buttons_actions.dart';
-import '../../util/colors/app_colors.dart';
+import '../../../util/buttons_actions.dart';
+import '../../../util/colors/app_colors.dart';
+import '../list_item.dart';
 
-/// Handles the display and behaviour of a list item, eq. an entry.
-class ListItem extends StatelessWidget {
-  const ListItem({
-    Key? key,
-    required this.entries,
-    required this.index,
-  }) : super(key: key);
-
-  /// The entries of the application.
-  final List entries;
-
-  /// The current index of the entries to read.
-  final int index;
-
+/// Defines the state of a list item (for item removing and editing).
+class ListItemState extends State<ListItem> {
   /// Builds the widget.
   @override
   Widget build(BuildContext context) {
@@ -30,12 +19,18 @@ class ListItem extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
               child: TextButton(
-                // handle overflow
                 onPressed: () {
-                  hintEntryDisplayButtonOnPress(context, entries[index - 1]);
+                  hintEntryDisplayButtonOnPress(
+                    context,
+                    widget.entries,
+                    widget.entries[widget.index - 1],
+                    widget.homeState,
+                  );
                 },
-                child: Text(entries[index - 1].name,
-                    style: const TextStyle(fontSize: 20)),
+                child: Text(
+                  widget.entries[widget.index - 1].name,
+                  style: const TextStyle(fontSize: 20),
+                ),
               ),
             ),
             IconButton(
@@ -45,7 +40,11 @@ class ListItem extends StatelessWidget {
               ),
               onPressed: () {
                 confirmEntryDeletionButtonOnPress(
-                    context, entries[index - 1].name);
+                  context,
+                  widget.entries,
+                  widget.entries[widget.index - 1].name,
+                  widget.homeState,
+                );
               },
             )
           ],
