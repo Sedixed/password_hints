@@ -6,6 +6,8 @@ import 'package:passwd_hints/util/theme_mode.dart';
 import 'package:passwd_hints/widget/stateful/hint_entry_dialog.dart';
 import 'package:passwd_hints/widget/stateful/state/home_state.dart';
 
+/// Returns true if an entry named [entryName] exists in [entries], false
+/// otherwise.
 bool hintKeyAlreadyExisting(String entryName, List<HintEntry> entries) {
   for (var entry in entries) {
     if (entry.name == entryName) {
@@ -15,6 +17,9 @@ bool hintKeyAlreadyExisting(String entryName, List<HintEntry> entries) {
   return false;
 }
 
+/// Method called when the entry addition button is pressed. The parameter
+/// [context] is the caller context, [caller] is the home state calling this
+/// function and [entries] is the hint entries list.
 void hintEntryAdditionButtonOnPress(
   BuildContext context,
   HomeState caller,
@@ -110,6 +115,9 @@ void hintEntryAdditionButtonOnPress(
                         identifierController.text,
                       );
                       Navigator.pop(context);
+                      caller.setState(() {
+                        caller.readEntries();
+                      });
                     }
                   },
                 ),
@@ -120,6 +128,10 @@ void hintEntryAdditionButtonOnPress(
       });
 }
 
+/// Method called when the entry deletion confirmation button is pressed.
+/// The parameter [context] is the caller context, [entries] is the hint entries
+/// list, [name] is the entry name we are deleting and [state] is the home state
+/// calling this function.
 void confirmEntryDeletionButtonOnPress(
   BuildContext context,
   List<HintEntry> entries,
@@ -177,6 +189,9 @@ void confirmEntryDeletionButtonOnPress(
   );
 }
 
+/// Method called when an entry is clicked. The parameter [context] is the
+/// caller context, [entries] is the hint entries list, [entry] is the entry
+/// selected and [state] is the home state calling this function.
 void hintEntryDisplayButtonOnPress(
   BuildContext context,
   List<HintEntry> entries,

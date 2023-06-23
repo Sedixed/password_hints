@@ -81,7 +81,6 @@ class AppSearchDelegate extends SearchDelegate {
   @override
   void showResults(context) {
     Navigator.pop(context);
-
     hintEntryDisplayButtonOnPress(
       _baseContext,
       _entries,

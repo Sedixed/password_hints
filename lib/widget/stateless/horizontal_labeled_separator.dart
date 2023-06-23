@@ -11,6 +11,7 @@ class HorizontalLabeledSeparator extends StatelessWidget {
   /// The current index of the entries to read.
   final int _index;
 
+  /// Default constructor.
   HorizontalLabeledSeparator(
     this._entries,
     this._index,

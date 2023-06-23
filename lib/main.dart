@@ -21,12 +21,12 @@ class App extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.light,
         useMaterial3: true,
-        primarySwatch: AppColor.black.toMaterialColor(),
+        primarySwatch: AppColor.black.materialColor,
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         useMaterial3: true,
-        primarySwatch: AppColor.white.toMaterialColor(),
+        primarySwatch: AppColor.white.materialColor,
       ),
       home: SafeArea(
         child: Home(),

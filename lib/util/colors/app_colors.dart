@@ -26,10 +26,14 @@ enum AppColor {
   editButtonColor(color: Color.fromARGB(255, 107, 174, 228)),
   darkEditButtonColor(color: Color.fromARGB(255, 70, 129, 177));
 
+  /// The color.
   final Color color;
+
+  /// Default constructor.
   const AppColor({required this.color});
 
-  MaterialColor toMaterialColor() {
+  /// Converts a color to its MaterialColor equivalent.
+  MaterialColor get materialColor {
     Map<int, Color> colorMap = {
       50: color,
       100: color,

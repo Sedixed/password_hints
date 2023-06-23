@@ -6,14 +6,17 @@ import 'package:string_validator/string_validator.dart';
 
 import '../constants.dart';
 import 'hint_entry.dart';
+import 'rsa_cipher.dart';
 
 /// Handles data file reading and writing operations, using app entries.
 class DataFileController {
+  /// Local path to the file.
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
     return directory.path;
   }
 
+  /// Local file from the local path.
   Future<File> get _localFile async {
     final path = await _localPath;
     return File('$path/$dataFileName');
@@ -28,8 +31,10 @@ class DataFileController {
     String identifier,
   ) async {
     final file = await _localFile;
+    RSACipherizer cipher = RSACipherizer();
 
-    HintEntry entry = HintEntry(name, hint, identifier);
+    HintEntry entry = HintEntry(name, cipher.cipherMessage(hint),
+        identifier.isEmpty ? identifier : cipher.cipherMessage(identifier));
     entries.add(entry);
     entries.sort((a, b) => _compareEntries(a, b));
 
