@@ -10,7 +10,7 @@ void main() {
 
 /// App widget : builds the Password Hints app with a dark theme.
 class App extends StatelessWidget {
-  const App({Key? key}) : super(key: key);
+  const App({super.key});
 
   /// Builds the widget.
   @override
@@ -28,7 +28,7 @@ class App extends StatelessWidget {
         useMaterial3: true,
         primarySwatch: AppColor.white.materialColor,
       ),
-      home: SafeArea(
+      home: const SafeArea(
         child: Home(),
       ),
       title: 'Passwd Hints',

@@ -21,7 +21,6 @@ dependencies:
 
   path_provider: ^2.0.11
   string_validator: ^1.0.0
-  path_provider_android: 2.0.22
   envied: ^0.3.0+3
   build_runner: ^2.3.3
   envied_generator: ^0.3.0+3
