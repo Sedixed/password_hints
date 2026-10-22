@@ -106,7 +106,9 @@ void hintEntryAdditionButtonOnPress(
                       backgroundColor: context.isDarkMode
                           ? AppColor.darkButtonColor.color
                           : AppColor.buttonColor.color),
-                  child: Text('Add'),
+                  child: Text(
+                    'Add'
+                  ),
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
                       caller.addEntry(
@@ -115,9 +117,7 @@ void hintEntryAdditionButtonOnPress(
                         identifierController.text,
                       );
                       Navigator.pop(context);
-                      caller.setState(() {
-                        caller.readEntries();
-                      });
+                      caller.readEntries();
                     }
                   },
                 ),
@@ -160,9 +160,7 @@ void confirmEntryDeletionButtonOnPress(
             onPressed: () {
               dfc.removeEntry(entries, name);
               Navigator.pop(context);
-              state.setState(() {
-                state.readEntries();
-              });
+              state.readEntries();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColor.removalButtonColor.color,

@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.passwd_hints">
+    package="com.passwd_hints">
    <application
         android:label="Passwd Hints"
         android:name="${applicationName}"

@@ -8,7 +8,7 @@
 PRODUCT_NAME = passwd_hints
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.passwdHints
+PRODUCT_BUNDLE_IDENTIFIER = com.passwd_hints
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2023 com.example. All rights reserved.

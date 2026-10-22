@@ -46,6 +46,6 @@ enum AppColor {
       800: color,
       900: color,
     };
-    return MaterialColor(color.value, colorMap);
+    return MaterialColor(color.toARGB32(), colorMap);
   }
 }

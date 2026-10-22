@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:string_validator/string_validator.dart';
 
@@ -69,19 +70,87 @@ class DataFileController {
       }
       // Read the file
       final contents = await file.readAsString();
+      if (contents.trim().isEmpty) {
+        return 1;
+      }
       var jsonResponse = jsonDecode(contents);
 
       entries.clear();
-      for (var e in jsonResponse) {
-        HintEntry entry = HintEntry(e['name'], e['hint'], e['identifier']);
-        entries.add(entry);
+      if (jsonResponse is List) {
+        for (var e in jsonResponse) {
+          if (e is Map<String, dynamic>) {
+            HintEntry entry = HintEntry.fromJson(e);
+            if (entry.name.isNotEmpty) {
+              entries.add(entry);
+            }
+          } else if (e is Map) {
+            Map<String, dynamic> map = Map<String, dynamic>.from(e);
+            HintEntry entry = HintEntry.fromJson(map);
+            if (entry.name.isNotEmpty) {
+              entries.add(entry);
+            }
+          }
+        }
+        entries.sort((a, b) => _compareEntries(a, b));
       }
-      entries.sort((a, b) => _compareEntries(a, b));
 
-      return int.parse(contents);
+      return 1;
     } catch (e) {
-      // If encountering an error, return 0
+      print('Error reading entries: $e');
       return 0;
+    }
+  }
+
+  /// Imports a file chosen by the user and overwrites the current data file.
+  Future<bool> importFile(List entries) async {
+    try {
+      PlatformFile? file = await FilePicker.pickFile();
+      if (file != null && file.path != null) {
+        final importedFile = File(file.path!);
+        final contents = await importedFile.readAsString();
+
+        var jsonResponse = jsonDecode(contents);
+        if (jsonResponse is List) {
+          final localFile = await _localFile;
+          await localFile.writeAsString(contents);
+
+          entries.clear();
+          for (var e in jsonResponse) {
+            if (e is Map) {
+              Map<String, dynamic> map = Map<String, dynamic>.from(e);
+              HintEntry entry = HintEntry.fromJson(map);
+              if (entry.name.isNotEmpty) {
+                entries.add(entry);
+              }
+            }
+          }
+          entries.sort((a, b) => _compareEntries(a, b));
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Exports the current data file to a user-selected destination.
+  Future<bool> exportFile() async {
+    try {
+      final localFile = await _localFile;
+      if (!await localFile.exists()) {
+        await localFile.create();
+      }
+      final bytes = await localFile.readAsBytes();
+
+      Uri? result = await FilePicker.saveFile(
+        fileName: dataFileName,
+        bytes: bytes,
+      );
+
+      return result != null;
+    } catch (e) {
+      return false;
     }
   }
 

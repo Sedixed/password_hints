@@ -29,7 +29,9 @@ class ListItemState extends State<ListItem> {
                 },
                 child: Text(
                   widget.entries[widget.index - 1].name,
-                  style: const TextStyle(fontSize: 20),
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ),

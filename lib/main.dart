@@ -22,11 +22,27 @@ class App extends StatelessWidget {
         brightness: Brightness.light,
         useMaterial3: true,
         primarySwatch: AppColor.black.materialColor,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppColor.black.color,
+          brightness: Brightness.light,
+        ).copyWith(primary: AppColor.black.color),
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: Colors.black,
+          selectionHandleColor: Colors.black,
+        ),
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         useMaterial3: true,
         primarySwatch: AppColor.white.materialColor,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppColor.black.color,
+          brightness: Brightness.dark,
+        ).copyWith(primary: AppColor.black.color),
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: Colors.black,
+          selectionHandleColor: Colors.black,
+        ),
       ),
       home: const SafeArea(
         child: Home(),

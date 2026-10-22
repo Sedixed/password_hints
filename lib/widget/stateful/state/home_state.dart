@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:passwd_hints/util/colors/app_colors.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:string_validator/string_validator.dart';
@@ -61,9 +62,9 @@ class HomeState extends State<Home> {
     super.initState();
 
     // faking
-    /*for (var i = 0; i < nb; ++i) {
+    for (var i = 0; i < nb; ++i) {
       addEntry(names[i], hints[i], ids[i]);
-    }*/
+    }
 
     readEntries();
   }
@@ -126,6 +127,31 @@ class HomeState extends State<Home> {
     );
   }
 
+  /// Imports the data file, overwrites current entries, and shows a SnackBar.
+  void importEntries() async {
+    bool success = await _controller.importFile(_entries);
+    if (success) {
+      setState(() {});
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('File imported successfully')),
+        );
+      }
+    }
+  }
+
+  /// Exports the current data file and shows a SnackBar.
+  void exportEntries() async {
+    bool success = await _controller.exportFile();
+    if (success) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('File exported successfully')),
+        );
+      }
+    }
+  }
+
   /// Builds the home widget.
   @override
   Widget build(BuildContext context) {
@@ -134,8 +160,24 @@ class HomeState extends State<Home> {
         : Scaffold(
             appBar: AppBar(
               backgroundColor: AppColor.appMainColor.color,
+              foregroundColor: AppColor.black.color,
+              systemOverlayStyle: const SystemUiOverlayStyle(
+                statusBarColor: Colors.white,
+                statusBarIconBrightness: Brightness.dark,
+                statusBarBrightness: Brightness.light,
+              ),
               title: const Text('Passwd Hints'),
               actions: [
+                IconButton(
+                  onPressed: importEntries,
+                  icon: const Icon(Icons.upload_file),
+                  tooltip: 'Import file',
+                ),
+                IconButton(
+                  onPressed: exportEntries,
+                  icon: const Icon(Icons.download),
+                  tooltip: 'Export file',
+                ),
                 IconButton(
                   onPressed: () {
                     showSearch(
@@ -144,6 +186,7 @@ class HomeState extends State<Home> {
                     );
                   },
                   icon: const Icon(Icons.search),
+                  tooltip: 'Search',
                 ),
               ],
             ),
