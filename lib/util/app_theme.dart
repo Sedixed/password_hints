@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Shared Material 3 themes for the application.
 class AppTheme {
@@ -21,6 +22,15 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.primaryContainer,
         foregroundColor: colorScheme.onPrimaryContainer,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: colorScheme.primaryContainer,
+          statusBarIconBrightness: brightness == Brightness.light
+              ? Brightness.dark
+              : Brightness.light,
+          statusBarBrightness: brightness == Brightness.light
+              ? Brightness.light
+              : Brightness.dark,
+        ),
         centerTitle: false,
         elevation: 0,
         scrolledUnderElevation: 1,

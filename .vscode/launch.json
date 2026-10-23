@@ -5,21 +5,25 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "passwd_hints",
-      "request": "launch",
-      "type": "dart"
-    },
-    {
-      "name": "passwd_hints (profile mode)",
+      "name": "Passwd Hints (Development)",
       "request": "launch",
       "type": "dart",
-      "flutterMode": "profile"
+      "toolArgs": [
+        "--flavor",
+        "dev",
+        "--dart-define=APP_ENV=dev"
+      ]
     },
     {
-      "name": "passwd_hints (release mode)",
+      "name": "Passwd Hints (Production)",
       "request": "launch",
       "type": "dart",
-      "flutterMode": "release"
+      "flutterMode": "release",
+      "toolArgs": [
+        "--flavor",
+        "prod",
+        "--dart-define=APP_ENV=prod"
+      ]
     }
   ]
 }

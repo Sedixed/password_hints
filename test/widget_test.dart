@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:passwd_hints/config/app_config.dart';
 import 'package:passwd_hints/main.dart';
 import 'package:passwd_hints/util/app_search_delegate.dart';
 import 'package:passwd_hints/util/app_theme.dart';
@@ -11,6 +12,22 @@ import 'package:passwd_hints/widget/stateless/empty_list_card.dart';
 import 'package:passwd_hints/widget/stateful/state/home_state.dart';
 
 void main() {
+  test('app config requires an explicit supported environment', () {
+    expect(
+      () => AppConfig.fromValues(''),
+      throwsArgumentError,
+    );
+
+    final dev = AppConfig.fromValues('dev', apiBaseUrl: 'https://dev.example');
+    expect(dev.environment, AppEnvironment.dev);
+    expect(dev.apiBaseUrl, 'https://dev.example');
+    expect(dev.appTitle, 'Passwd Hints Dev');
+
+    final prod = AppConfig.fromValues('prod');
+    expect(prod.environment, AppEnvironment.prod);
+    expect(prod.appTitle, 'Passwd Hints');
+  });
+
   test('light and dark themes use Material 3 with matching brightness', () {
     expect(AppTheme.light.useMaterial3, isTrue);
     expect(AppTheme.light.brightness, Brightness.light);
@@ -28,6 +45,20 @@ void main() {
       AppTheme.dark.appBarTheme.backgroundColor,
       AppTheme.dark.floatingActionButtonTheme.backgroundColor,
     );
+  });
+
+  test('app bar status bar colors and icons contrast in both themes', () {
+    final lightStyle = AppTheme.light.appBarTheme.systemOverlayStyle;
+    final darkStyle = AppTheme.dark.appBarTheme.systemOverlayStyle;
+
+    expect(lightStyle, isNotNull);
+    expect(lightStyle!.statusBarColor,
+        AppTheme.light.colorScheme.primaryContainer);
+    expect(lightStyle.statusBarIconBrightness, Brightness.dark);
+    expect(darkStyle, isNotNull);
+    expect(
+        darkStyle!.statusBarColor, AppTheme.dark.colorScheme.primaryContainer);
+    expect(darkStyle.statusBarIconBrightness, Brightness.light);
   });
 
   testWidgets('alphabet index fits its area without scrolling or FAB overlap',

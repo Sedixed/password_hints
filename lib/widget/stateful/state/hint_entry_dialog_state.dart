@@ -127,7 +127,7 @@ class HintEntryDialogState extends State<HintEntryDialog> {
                 icon: Icon(
                   _criticalVisible ? Icons.visibility_off : Icons.visibility,
                 ),
-                label: Text(_criticalVisible ? 'Hide details' : 'Show details'),
+                label: Text("Details"),
               ),
               FilledButton.icon(
                 onPressed: _nameChanged || _hintChanged || _identifierChanged
