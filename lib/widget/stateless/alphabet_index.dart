@@ -16,11 +16,30 @@ class AlphabetIndex extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final labelStyle = Theme.of(context).textTheme.labelSmall;
+    final textDirection = Directionality.of(context);
+    final textScaler = MediaQuery.textScalerOf(context);
+    var labelWidth = 0.0;
+    for (final alphabet in alphabets) {
+      for (final fontWeight in [FontWeight.normal, FontWeight.bold]) {
+        final painter = TextPainter(
+          text: TextSpan(
+            text: alphabet,
+            style: labelStyle?.copyWith(fontWeight: fontWeight),
+          ),
+          textDirection: textDirection,
+          textScaler: textScaler,
+        )..layout();
+        if (painter.width > labelWidth) {
+          labelWidth = painter.width;
+        }
+      }
+    }
 
     return Material(
-      color: colorScheme.surfaceContainerLow,
+      color: colorScheme.surfaceContainer,
       child: SizedBox(
-        width: 56,
+        width: labelWidth + 20,
         child: LayoutBuilder(
           builder: (context, constraints) {
             const reservedBottomHeight = 96.0;
@@ -55,7 +74,7 @@ class AlphabetIndex extends StatelessWidget {
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 160),
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 7,
+                                horizontal: 10,
                                 vertical: 3,
                               ),
                               decoration: BoxDecoration(

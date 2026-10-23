@@ -12,7 +12,7 @@ class ListItemState extends State<ListItem> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Material(
-      color: colorScheme.surfaceContainerLow,
+      color: colorScheme.surfaceContainer,
       borderRadius: BorderRadius.circular(16),
       child: ListTile(
         contentPadding: const EdgeInsets.only(left: 16, right: 8),

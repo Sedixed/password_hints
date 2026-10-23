@@ -45,6 +45,26 @@ void main() {
       AppTheme.dark.appBarTheme.backgroundColor,
       AppTheme.dark.floatingActionButtonTheme.backgroundColor,
     );
+    expect(
+      AppTheme.light.cardTheme.color,
+      AppTheme.light.colorScheme.surfaceContainer,
+    );
+    expect(
+      AppTheme.dark.cardTheme.color,
+      AppTheme.dark.colorScheme.surfaceContainer,
+    );
+    expect(
+      AppTheme.light.inputDecorationTheme.fillColor,
+      AppTheme.light.colorScheme.surfaceContainerHighest.withValues(
+        alpha: 0.65,
+      ),
+    );
+    expect(
+      AppTheme.dark.inputDecorationTheme.fillColor,
+      AppTheme.dark.colorScheme.surfaceContainerHighest.withValues(
+        alpha: 0.65,
+      ),
+    );
   });
 
   test('app bar status bar colors and icons contrast in both themes', () {
@@ -87,6 +107,7 @@ void main() {
     for (final letter in alphabets) {
       expect(find.text(letter), findsOneWidget);
     }
+    expect(tester.getSize(find.byType(AlphabetIndex)).width, lessThan(48));
     expect(
       find.byWidgetPredicate(
         (widget) =>

@@ -36,7 +36,7 @@ class AppTheme {
         scrolledUnderElevation: 1,
       ),
       cardTheme: CardThemeData(
-        color: colorScheme.surfaceContainerLow,
+        color: colorScheme.surfaceContainer,
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
@@ -45,7 +45,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.45),
+        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.65),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
