@@ -9,6 +9,9 @@ import '../constants.dart';
 import 'hint_entry.dart';
 import 'rsa_cipher.dart';
 
+/// Result of an import or export operation.
+enum FileOperationResult { success, cancelled, failed }
+
 /// Handles data file reading and writing operations, using app entries.
 class DataFileController {
   /// Local path to the file.
@@ -65,7 +68,7 @@ class DataFileController {
       final file = await _localFile;
       print(file.path);
       if (!await file.exists()) {
-        file.create();
+        await file.create();
         print(file.path);
       }
       // Read the file
@@ -102,40 +105,43 @@ class DataFileController {
   }
 
   /// Imports a file chosen by the user and overwrites the current data file.
-  Future<bool> importFile(List entries) async {
+  Future<FileOperationResult> importFile(List entries) async {
     try {
       PlatformFile? file = await FilePicker.pickFile();
-      if (file != null && file.path != null) {
-        final importedFile = File(file.path!);
-        final contents = await importedFile.readAsString();
+      if (file == null || file.path == null) {
+        return FileOperationResult.cancelled;
+      }
 
-        var jsonResponse = jsonDecode(contents);
-        if (jsonResponse is List) {
-          final localFile = await _localFile;
-          await localFile.writeAsString(contents);
+      final importedFile = File(file.path!);
+      final contents = await importedFile.readAsString();
+      final jsonResponse = jsonDecode(contents);
+      if (jsonResponse is! List) {
+        return FileOperationResult.failed;
+      }
 
-          entries.clear();
-          for (var e in jsonResponse) {
-            if (e is Map) {
-              Map<String, dynamic> map = Map<String, dynamic>.from(e);
-              HintEntry entry = HintEntry.fromJson(map);
-              if (entry.name.isNotEmpty) {
-                entries.add(entry);
-              }
-            }
+      final localFile = await _localFile;
+      await localFile.writeAsString(contents);
+
+      entries.clear();
+      for (var e in jsonResponse) {
+        if (e is Map) {
+          final map = Map<String, dynamic>.from(e);
+          final entry = HintEntry.fromJson(map);
+          if (entry.name.isNotEmpty) {
+            entries.add(entry);
           }
-          entries.sort((a, b) => _compareEntries(a, b));
-          return true;
         }
       }
-      return false;
-    } catch (e) {
-      return false;
+      entries.sort((a, b) => _compareEntries(a, b));
+      return FileOperationResult.success;
+    } on Exception catch (error) {
+      print('Error importing entries: $error');
+      return FileOperationResult.failed;
     }
   }
 
   /// Exports the current data file to a user-selected destination.
-  Future<bool> exportFile() async {
+  Future<FileOperationResult> exportFile() async {
     try {
       final localFile = await _localFile;
       if (!await localFile.exists()) {
@@ -148,9 +154,12 @@ class DataFileController {
         bytes: bytes,
       );
 
-      return result != null;
-    } catch (e) {
-      return false;
+      return result == null
+          ? FileOperationResult.cancelled
+          : FileOperationResult.success;
+    } on Exception catch (error) {
+      print('Error exporting entries: $error');
+      return FileOperationResult.failed;
     }
   }
 

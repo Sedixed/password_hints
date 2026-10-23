@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../util/buttons_actions.dart';
-import '../../../util/colors/app_colors.dart';
 import '../list_item.dart';
 
 /// Defines the state of a list item (for item removing and editing).
@@ -9,47 +8,48 @@ class ListItemState extends State<ListItem> {
   /// Builds the widget.
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: Card(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: TextButton(
-                onPressed: () {
-                  hintEntryDisplayButtonOnPress(
-                    context,
-                    widget.entries,
-                    widget.entries[widget.index - 1],
-                    widget.homeState,
-                  );
-                },
-                child: Text(
-                  widget.entries[widget.index - 1].name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.remove_circle_outline,
-                color: AppColor.darkEntryRemovingColor.color,
-              ),
-              onPressed: () {
-                confirmEntryDeletionButtonOnPress(
-                  context,
-                  widget.entries,
-                  widget.entries[widget.index - 1].name,
-                  widget.homeState,
-                );
-              },
-            )
-          ],
+    final entry = widget.entries[widget.index];
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Material(
+      color: colorScheme.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(16),
+      child: ListTile(
+        contentPadding: const EdgeInsets.only(left: 16, right: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        leading: CircleAvatar(
+          backgroundColor: colorScheme.secondaryContainer,
+          foregroundColor: colorScheme.onSecondaryContainer,
+          child: Text(
+            entry.name.characters.first.toUpperCase(),
+            semanticsLabel: 'Entry initial',
+          ),
+        ),
+        title: Text(
+          entry.name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        onTap: () => hintEntryDisplayButtonOnPress(
+          context,
+          widget.entries,
+          entry,
+          widget.homeState,
+        ),
+        trailing: IconButton(
+          tooltip: 'Delete ${entry.name}',
+          icon: Icon(
+            Icons.delete_outline,
+            color: colorScheme.error,
+          ),
+          onPressed: () => confirmEntryDeletionButtonOnPress(
+            context,
+            widget.entries,
+            entry.name,
+            widget.homeState,
+          ),
         ),
       ),
     );

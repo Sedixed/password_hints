@@ -1,120 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:passwd_hints/util/colors/app_colors.dart';
-import 'package:passwd_hints/util/theme_mode.dart';
+import 'package:passwd_hints/util/hint_entry.dart';
 import 'package:string_validator/string_validator.dart';
 
-/// Horizontal labeled separator widget.
+/// Displays a labeled divider at the start of each alphabetic group.
 class HorizontalLabeledSeparator extends StatelessWidget {
-  /// The entries of the application.
-  final List _entries;
+  const HorizontalLabeledSeparator(
+    this._entries,
+    this._index, {
+    super.key,
+  });
 
-  /// The current index of the entries to read.
+  final List<HintEntry> _entries;
   final int _index;
 
-  /// Default constructor.
-  HorizontalLabeledSeparator(
-    this._entries,
-    this._index,
-  );
-
-  /// Builds the widget.
   @override
   Widget build(BuildContext context) {
-    if (_index == 0 ||
-        (_index > 0 &&
-                _index < _entries.length &&
-                _entries[_index - 1].name.isNotEmpty &&
-                _entries[_index].name.isNotEmpty &&
-                // first character is alpha
-                (isAlpha(_entries[_index].name[0]) &&
-                    _entries[_index - 1].name[0].toLowerCase() !=
-                        _entries[_index].name[0].toLowerCase()) ||
-            // first character is numeric
-            (isFirstNumeric(_index)) ||
-            // first character is special
-            (isFirstSpecial(_index)))) {
-      bool isDarkMode = context.isDarkMode;
-      return Row(
-        children: <Widget>[
+    if (_index > 0 &&
+        _getSeparatorLabel(_entries[_index - 1].name) ==
+            _getSeparatorLabel(_entries[_index].name)) {
+      return const SizedBox.shrink();
+    }
+
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 16, bottom: 8),
+      child: Row(
+        children: [
           Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(right: 10.0),
-              child: Divider(
-                color: isDarkMode
-                    ? AppColor.darkSepColor.color
-                    : AppColor.sepColor.color,
-                thickness: 2,
-              ),
+            child: Divider(color: colorScheme.outlineVariant, height: 1),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Text(
+              _getSeparatorLabel(_entries[_index].name),
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
             ),
           ),
-          Text(
-            _entries[_index].name.isEmpty
-                ? 'SAMPLE TEXT'
-                : getSeparatorLabel(_entries[_index].name),
-          ),
           Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(left: 10.0),
-              child: Divider(
-                color: isDarkMode
-                    ? AppColor.darkSepColor.color
-                    : AppColor.sepColor.color,
-                thickness: 2,
-              ),
-            ),
+            child: Divider(color: colorScheme.outlineVariant, height: 1),
           ),
         ],
-      );
-    }
-    return SizedBox();
+      ),
+    );
   }
 
-  /// returns the separator label according to the current [entryName].
-  /// It will be from A-Z if it starts with an alpha character, 0 if it is a
-  /// numeric character, or # if it is a special character.
-  String getSeparatorLabel(String entryName) {
-    if (isAlpha(entryName[0])) {
-      return entryName[0].toUpperCase();
+  String _getSeparatorLabel(String name) {
+    final firstCharacter = name[0];
+    if (isAlpha(firstCharacter)) {
+      return firstCharacter.toUpperCase();
     }
-    if (isNumeric(entryName[0])) {
-      return "0";
+    if (isNumeric(firstCharacter)) {
+      return '0';
     }
-    return "#";
-  }
-
-  /// Returns true if the entry name at [index] is the first entry readen which
-  /// name starts with a digit, false otherwise.
-  bool isFirstNumeric(int index) {
-    if (isNumeric(_entries[index].name[0])) {
-      for (var i = 0; i < _entries.length; ++i) {
-        if (i == index) {
-          continue;
-        }
-        if (isNumeric(_entries[i].name[0]) &&
-            (i == 0 || !isNumeric(_entries[i - 1].name[0]))) {
-          return false;
-        }
-      }
-      return true;
-    }
-    return false;
-  }
-
-  /// Returns true if the entry name at [index] is the first entry readen which
-  /// name starts with a special character, false otherwise.
-  bool isFirstSpecial(int index) {
-    if (!isAlphanumeric(_entries[index].name[0])) {
-      for (var i = 0; i < _entries.length; ++i) {
-        if (i == index) {
-          continue;
-        }
-        if (!isAlphanumeric(_entries[i].name[0]) &&
-            (i == 0 || isAlphanumeric(_entries[i - 1].name[0]))) {
-          return false;
-        }
-      }
-      return true;
-    }
-    return false;
+    return '#';
   }
 }

@@ -3,6 +3,7 @@ import 'package:passwd_hints/util/hint_entry.dart';
 import 'package:passwd_hints/widget/stateful/state/home_state.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../../util/buttons_actions.dart';
 import 'empty_list_card.dart';
 import 'horizontal_labeled_separator.dart';
 import '../stateful/list_item.dart';
@@ -33,33 +34,34 @@ class ScrollableList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (_entries.isEmpty) {
-      return EmptyListCard();
+      return EmptyListCard(
+        onAddHint: () => hintEntryAdditionButtonOnPress(
+          context,
+          _homeState,
+          _entries,
+        ),
+      );
     }
 
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 20, 40, 20),
-      child: ScrollablePositionedList.separated(
-        separatorBuilder: (context, index) => HorizontalLabeledSeparator(
-          _entries,
-          index,
-        ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 8, 16),
+      child: ScrollablePositionedList.builder(
         itemScrollController: _itemScrollController,
         itemPositionsListener: _itemPositionsListener,
-        itemCount: _entries.length + 1,
-        itemBuilder: (context, index) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            index == 0
-                ? SizedBox()
-                : ListItem(
-                    _entries,
-                    index,
-                    _homeState,
-                  ),
-            const SizedBox(
-              height: 30,
-            ),
-          ],
+        itemCount: _entries.length,
+        itemBuilder: (context, index) => Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              HorizontalLabeledSeparator(_entries, index),
+              ListItem(
+                _entries,
+                index,
+                _homeState,
+              ),
+            ],
+          ),
         ),
       ),
     );

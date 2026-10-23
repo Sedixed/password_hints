@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:passwd_hints/constants.dart';
-import 'package:passwd_hints/util/colors/app_colors.dart';
 import 'package:passwd_hints/util/data_file_controller.dart';
 import 'package:passwd_hints/util/rsa_cipher.dart';
-import 'package:passwd_hints/util/theme_mode.dart';
 
 import '../../../util/buttons_actions.dart';
 import '../hint_entry_dialog.dart';
@@ -14,20 +11,15 @@ class HintEntryDialogState extends State<HintEntryDialog> {
   /// Name text field controller.
   late TextEditingController _nameController;
 
-  /// Name text field focus node.
-  FocusNode _nameFocus = FocusNode();
-
   /// Hint text field controller.
   late TextEditingController _hintController;
-
-  /// Hint text field focus node.
-  FocusNode _hintFocus = FocusNode();
 
   /// Identifier text field controller.
   late TextEditingController _identifierController;
 
-  /// Identifier text field focus node.
-  FocusNode _identifierFocus = FocusNode();
+  late String _originalName;
+  late String _originalHint;
+  late String _originalIdentifier;
 
   /// Indicates if the name text field has been modified.
   bool _nameChanged = false;
@@ -46,182 +38,154 @@ class HintEntryDialogState extends State<HintEntryDialog> {
   @override
   void initState() {
     super.initState();
-    RSACipherizer cipher = RSACipherizer();
-    _nameController = TextEditingController(text: widget.entry.name);
-    _hintController =
-        TextEditingController(text: cipher.decipherMessage(widget.entry.hint));
+    final cipher = RSACipherizer();
+    _originalName = widget.entry.name;
+    _originalHint = cipher.decipherMessage(widget.entry.hint);
+    _originalIdentifier = widget.entry.identifier.isEmpty
+        ? ''
+        : cipher.decipherMessage(widget.entry.identifier);
+    _nameController = TextEditingController(text: _originalName);
+    _hintController = TextEditingController(text: _originalHint);
     _identifierController = TextEditingController(
-      text: widget.entry.identifier.isEmpty
-          ? widget.entry.identifier
-          : cipher.decipherMessage(widget.entry.identifier),
+      text: _originalIdentifier,
     );
   }
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    _hintController.dispose();
+    _identifierController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    DataFileController dfc = DataFileController();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Form(
       key: _formKey,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           TextFormField(
             controller: _nameController,
-            focusNode: _nameFocus,
             validator: (value) {
-              if (value == null || value.isEmpty) {
+              if (value == null || value.trim().isEmpty) {
                 return "Name must not be blank.";
               }
-              if (value != widget.entry.name &&
+              if (value != _originalName &&
                   hintKeyAlreadyExisting(value, widget.entries)) {
-                return "Hint name already existing.";
+                return "Hint name already exists.";
               }
               return null;
             },
-            onChanged: (newValue) => onEditionStep(
-              newValue,
-              widget.entry.name,
-              nameRef,
-            ),
-            decoration: InputDecoration(
-              labelText: 'Name',
-              suffixText: '  *',
-              suffixStyle: TextStyle(
-                color: Colors.red,
-              ),
-              icon: Icon(Icons.short_text),
+            onChanged: (_) => _updateDirtyState(),
+            textCapitalization: TextCapitalization.words,
+            decoration: const InputDecoration(
+              labelText: 'Name *',
+              prefixIcon: Icon(Icons.short_text),
             ),
           ),
+          const SizedBox(height: 16),
           TextFormField(
             controller: _hintController,
             obscureText: !_criticalVisible,
-            focusNode: _hintFocus,
-            onChanged: (newValue) => onEditionStep(
-              newValue,
-              widget.entry.hint,
-              hintRef,
-            ),
+            validator: (value) => value == null || value.trim().isEmpty
+                ? 'Hint must not be blank.'
+                : null,
+            onChanged: (_) => _updateDirtyState(),
             autocorrect: false,
             enableSuggestions: false,
-            decoration: InputDecoration(
-              labelText: 'Hint',
-              suffixText: '  *',
-              suffixStyle: TextStyle(
-                color: Colors.red,
-              ),
-              icon: Icon(Icons.remove_red_eye),
+            decoration: const InputDecoration(
+              labelText: 'Hint *',
+              prefixIcon: Icon(Icons.key_outlined),
             ),
           ),
+          const SizedBox(height: 16),
           TextFormField(
             controller: _identifierController,
             obscureText: !_criticalVisible,
-            focusNode: _identifierFocus,
-            onChanged: (newValue) => onEditionStep(
-              newValue,
-              widget.entry.identifier,
-              identifierRef,
-            ),
-            decoration: InputDecoration(
-              labelText: 'Email/Username',
-              icon: Icon(Icons.alternate_email),
+            onChanged: (_) => _updateDirtyState(),
+            decoration: const InputDecoration(
+              labelText: 'Email or username',
+              prefixIcon: Icon(Icons.alternate_email),
             ),
           ),
-          // Actions
-          Padding(
-            padding: const EdgeInsets.only(top: 22.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 30.0),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: CircleBorder(),
-                      padding: EdgeInsets.all(15),
-                      foregroundColor: context.isDarkMode
-                          ? AppColor.darkHeavyButtonColor.color
-                          : AppColor.buttonColor.color,
-                      backgroundColor: context.isDarkMode
-                          ? AppColor.buttonColor.color
-                          : AppColor.darkHeavyButtonColor.color,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _criticalVisible = !_criticalVisible;
-                      });
-                    },
-                    child: Icon(_criticalVisible
-                        ? Icons.visibility_off
-                        : Icons.visibility),
-                  ),
+          const SizedBox(height: 20),
+          Wrap(
+            alignment: WrapAlignment.end,
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              OutlinedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _criticalVisible = !_criticalVisible;
+                  });
+                },
+                icon: Icon(
+                  _criticalVisible ? Icons.visibility_off : Icons.visibility,
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 30.0),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: CircleBorder(),
-                      padding: EdgeInsets.all(15),
-                      foregroundColor: AppColor.white.color,
-                      backgroundColor: context.isDarkMode
-                          ? AppColor.darkEditButtonColor.color
-                          : AppColor.editButtonColor.color,
-                    ),
-                    onPressed:
-                        _nameChanged || _hintChanged || _identifierChanged
-                            ? () async {
-                                if (_formKey.currentState!.validate()) {
-                                  await dfc.removeEntry(
-                                      widget.entries, widget.entry.name);
-                                  await dfc.addEntry(
-                                    widget.entries,
-                                    _nameController.text,
-                                    _hintController.text,
-                                    _identifierController.text,
-                                  );
-                                  widget.entry.name = _nameController.text;
-                                  widget.entry.hint = _hintController.text;
-                                  widget.entry.identifier =
-                                      _identifierController.text;
-                                  setState(() {
-                                    _nameChanged = false;
-                                    _hintChanged = false;
-                                    _identifierChanged = false;
-                                  });
-
-                                  widget.state.setState(() {
-                                    widget.state.readEntries();
-                                  });
-                                }
-                              }
-                            : null,
-                    child: Icon(Icons.save),
-                  ),
-                ),
-              ],
-            ),
+                label: Text(_criticalVisible ? 'Hide details' : 'Show details'),
+              ),
+              FilledButton.icon(
+                onPressed: _nameChanged || _hintChanged || _identifierChanged
+                    ? _saveChanges
+                    : null,
+                icon: const Icon(Icons.save_outlined),
+                label: const Text('Save'),
+              ),
+            ],
           ),
+          if (_criticalVisible)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(
+                'Sensitive details are visible',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colorScheme.error,
+                    ),
+              ),
+            ),
         ],
       ),
     );
   }
 
-  /// Updates the boolean indicating if a field has been modified at each
-  /// edition step (eq. a field has been edited).
-  onEditionStep(String newValue, String oldValue, String fieldRef) {
+  void _updateDirtyState() {
     setState(() {
-      switch (fieldRef) {
-        case nameRef:
-          _nameChanged = newValue != oldValue;
-          break;
-        case hintRef:
-          _hintChanged = newValue != oldValue;
-          break;
-        case identifierRef:
-          _identifierChanged = newValue != oldValue;
-          break;
-        default:
-          break;
-      }
+      _nameChanged = _nameController.text != _originalName;
+      _hintChanged = _hintController.text != _originalHint;
+      _identifierChanged = _identifierController.text != _originalIdentifier;
     });
+  }
+
+  Future<void> _saveChanges() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final controller = DataFileController();
+    await controller.removeEntry(widget.entries, widget.entry.name);
+    await controller.addEntry(
+      widget.entries,
+      _nameController.text.trim(),
+      _hintController.text,
+      _identifierController.text,
+    );
+
+    if (!mounted) {
+      return;
+    }
+    _originalName = _nameController.text.trim();
+    _originalHint = _hintController.text;
+    _originalIdentifier = _identifierController.text;
+    setState(() {
+      _nameChanged = false;
+      _hintChanged = false;
+      _identifierChanged = false;
+    });
+    await widget.state.readEntries();
   }
 }

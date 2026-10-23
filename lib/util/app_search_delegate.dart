@@ -50,23 +50,28 @@ class AppSearchDelegate extends SearchDelegate {
   /// Builds the suggestions from what has been typed.
   @override
   Widget buildSuggestions(BuildContext context) {
-    List<String> entriesNames = [];
-    for (var he in _entries) {
-      entriesNames.add(he.name);
-    }
-
-    List<String> suggestions = entriesNames.where((searchResult) {
+    final suggestions =
+        _entries.map((entry) => entry.name).where((searchResult) {
       final result = searchResult.toLowerCase();
       final input = query.toLowerCase();
-
       return result.contains(input);
     }).toList();
+
+    if (suggestions.isEmpty) {
+      return Center(
+        child: Text(
+          'No matching hints',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      );
+    }
 
     return ListView.builder(
       itemCount: suggestions.length,
       itemBuilder: (context, index) {
         final suggestion = suggestions[index];
         return ListTile(
+          leading: const Icon(Icons.key_outlined),
           title: Text(suggestion),
           onTap: () {
             query = suggestion;

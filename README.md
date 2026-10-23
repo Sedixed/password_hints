@@ -1,16 +1,23 @@
-# passwd_hints
+# Passwd Hints
 
-A new Flutter project.
+Passwd Hints keeps account names, optional usernames, and password hints in a
+local list. It is a hint organizer, not a password manager.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- Add, edit, search, and remove hints.
+- Browse entries alphabetically, including numeric and special-character names.
+- Import and export the entry data as JSON.
+- Follow the system light or dark appearance.
 
-A few resources to get you started if this is your first Flutter project:
+Application data is stored in the platform's documents directory in
+`passwd_hints_data.json`.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Run and validate
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```sh
+flutter pub get
+flutter run
+flutter analyze
+flutter test
+```

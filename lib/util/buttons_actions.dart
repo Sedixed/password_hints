@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:passwd_hints/util/colors/app_colors.dart';
 import 'package:passwd_hints/util/data_file_controller.dart';
 import 'package:passwd_hints/util/hint_entry.dart';
-import 'package:passwd_hints/util/theme_mode.dart';
 import 'package:passwd_hints/widget/stateful/hint_entry_dialog.dart';
+import 'package:passwd_hints/widget/stateful/new_hint_dialog.dart';
 import 'package:passwd_hints/widget/stateful/state/home_state.dart';
 
 /// Returns true if an entry named [entryName] exists in [entries], false
@@ -17,202 +16,86 @@ bool hintKeyAlreadyExisting(String entryName, List<HintEntry> entries) {
   return false;
 }
 
-/// Method called when the entry addition button is pressed. The parameter
-/// [context] is the caller context, [caller] is the home state calling this
-/// function and [entries] is the hint entries list.
+/// Opens the form for creating an entry.
 void hintEntryAdditionButtonOnPress(
   BuildContext context,
   HomeState caller,
   List<HintEntry> entries,
 ) {
-  TextEditingController nameController = TextEditingController();
-  FocusNode nameFocus = FocusNode();
-  TextEditingController hintController = TextEditingController();
-  FocusNode hintFocus = FocusNode();
-  TextEditingController identifierController = TextEditingController();
-  FocusNode identifierFocus = FocusNode();
-
-  final formKey = GlobalKey<FormState>();
-
-  showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          scrollable: true,
-          title: Text('New hint'),
-          content: Form(
-            key: formKey,
-            child: Column(
-              children: <Widget>[
-                TextFormField(
-                  controller: nameController,
-                  focusNode: nameFocus,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Name must not be blank.";
-                    }
-                    if (hintKeyAlreadyExisting(value, entries)) {
-                      return "Hint name already existing.";
-                    }
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Name',
-                    suffixText: '  *',
-                    suffixStyle: TextStyle(
-                      color: Colors.red,
-                    ),
-                    icon: Icon(Icons.short_text),
-                  ),
-                ),
-                TextFormField(
-                  controller: hintController,
-                  focusNode: hintFocus,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Hint must not be blank.";
-                    }
-                    return null;
-                  },
-                  autocorrect: false,
-                  enableSuggestions: false,
-                  decoration: InputDecoration(
-                    labelText: 'Hint',
-                    suffixText: '  *',
-                    suffixStyle: TextStyle(
-                      color: Colors.red,
-                    ),
-                    icon: Icon(Icons.remove_red_eye),
-                  ),
-                ),
-                TextFormField(
-                  controller: identifierController,
-                  focusNode: identifierFocus,
-                  decoration: InputDecoration(
-                    labelText: 'Email/Username',
-                    icon: Icon(Icons.alternate_email),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 22.0),
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: context.isDarkMode
-                          ? AppColor.darkButtonColor.color
-                          : AppColor.buttonColor.color),
-                  child: Text(
-                    'Add'
-                  ),
-                  onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      caller.addEntry(
-                        nameController.text,
-                        hintController.text,
-                        identifierController.text,
-                      );
-                      Navigator.pop(context);
-                      caller.readEntries();
-                    }
-                  },
-                ),
-              ),
-            ),
-          ],
-        );
-      });
+  showDialog<void>(
+    context: context,
+    builder: (_) => NewHintDialog(
+      caller: caller,
+      entries: entries,
+    ),
+  );
 }
 
-/// Method called when the entry deletion confirmation button is pressed.
-/// The parameter [context] is the caller context, [entries] is the hint entries
-/// list, [name] is the entry name we are deleting and [state] is the home state
-/// calling this function.
+/// Opens a confirmation dialog before deleting [name].
 void confirmEntryDeletionButtonOnPress(
   BuildContext context,
   List<HintEntry> entries,
   String name,
   HomeState state,
 ) {
-  DataFileController dfc = DataFileController();
-  showDialog(
+  final controller = DataFileController();
+  showDialog<void>(
     context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        scrollable: true,
-        content: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Text(
-                'Delete entry "$name" ?',
-                style: const TextStyle(fontSize: 20),
-              ),
-            ],
-          ),
+    builder: (dialogContext) => AlertDialog(
+      icon: const Icon(Icons.delete_outline),
+      title: const Text('Delete hint?'),
+      content: Text('Delete “$name”? This action cannot be undone.'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext),
+          child: const Text('Cancel'),
         ),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              dfc.removeEntry(entries, name);
-              Navigator.pop(context);
-              state.readEntries();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColor.removalButtonColor.color,
-              foregroundColor: AppColor.white.color,
-            ),
-            child: Text('Yes'),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: Theme.of(dialogContext).colorScheme.error,
+            foregroundColor: Theme.of(dialogContext).colorScheme.onError,
           ),
-          ElevatedButton(
-            autofocus: true,
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: context.isDarkMode
-                  ? AppColor.darkHeavyButtonColor.color
-                  : AppColor.heavyButtonColor.color,
-            ),
-            child: Text('No'),
-          ),
-        ],
-        actionsAlignment: MainAxisAlignment.spaceEvenly,
-      );
-    },
+          onPressed: () async {
+            await controller.removeEntry(entries, name);
+            if (!dialogContext.mounted) {
+              return;
+            }
+            Navigator.pop(dialogContext);
+            await state.readEntries();
+          },
+          child: const Text('Delete'),
+        ),
+      ],
+    ),
   );
 }
 
-/// Method called when an entry is clicked. The parameter [context] is the
-/// caller context, [entries] is the hint entries list, [entry] is the entry
-/// selected and [state] is the home state calling this function.
+/// Opens the detail and edit dialog for [entry].
 void hintEntryDisplayButtonOnPress(
   BuildContext context,
   List<HintEntry> entries,
   HintEntry entry,
   HomeState state,
 ) {
-  showDialog(
+  showDialog<void>(
     context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        scrollable: true,
-        title: Text(entry.name),
-        content: StatefulBuilder(
-          builder:
-              (BuildContext context, void Function(void Function()) setState) {
-            return HintEntryDialog(
-              entry,
-              state,
-              entries,
-            );
-          },
+    builder: (dialogContext) => AlertDialog(
+      scrollable: true,
+      title: const Text('Hint details'),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 480),
+        child: HintEntryDialog(
+          entry,
+          state,
+          entries,
         ),
-      );
-    },
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext),
+          child: const Text('Done'),
+        ),
+      ],
+    ),
   );
 }
